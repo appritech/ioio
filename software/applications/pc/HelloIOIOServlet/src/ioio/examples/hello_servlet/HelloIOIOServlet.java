@@ -22,9 +22,11 @@ public class HelloIOIOServlet extends IOIOServlet {
 
 	boolean ledOn = true;
 	private static final long serialVersionUID = 1L;
-
 	
-	/**
+	/***************************
+	 *  See WebDriver class!!!
+	 * *************************
+	 * 
 	 * Run this main method just like any other java main method. Then, use your web-browser
 	 * to navigate to the following URLs:
 	 * http://localhost:8181/off
@@ -33,19 +35,18 @@ public class HelloIOIOServlet extends IOIOServlet {
 	 * This will turn the LED on or off. At startup, the IOIO's LED will turn on, which indicates
 	 * that the servlet is running and ready.
 	 */
-	public static void main(String[] args) throws Exception {
-		Tomcat tomcat = new Tomcat();
-		final int port = 8181;
-		tomcat.setPort(port);
-
-		Context ctx = tomcat.addContext("/", new File(".").getAbsolutePath());
-
-		Tomcat.addServlet(ctx, "IOIOSample", new HelloIOIOServlet());
-		ctx.addServletMapping("/*", "IOIOSample");
-
-		tomcat.start();
-		tomcat.getServer().await();
-	}
+//	public static void main(String[] args) throws Exception {
+//		Tomcat tomcat = new Tomcat();
+//		final int port = 8181;
+//		tomcat.setPort(port);
+//
+//		Context ctx = tomcat.addContext("/", new File("web").getAbsolutePath());
+//		Tomcat.addServlet(ctx, "IOIOSample", new HelloIOIOServlet());
+//		ctx.addServletMapping("/hello", "IOIOSample");
+//		
+//		tomcat.start();
+//		tomcat.getServer().await();
+//	}
 
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws IOException, ServletException {
@@ -60,14 +61,19 @@ public class HelloIOIOServlet extends IOIOServlet {
 			out.println("<!DOCTYPE html>");
 			out.println("<html><head>");
 			out.println("<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>");
-			out.println("<title>IOIO</title></head>");
+			out.println("<title>IOIO</title>"
+					+ "<link rel='stylesheet' type='text/css' href='/css/home.css'>"
+					+ "</head>");
 			out.println("<body>");
-			out.println("<big><big>");
+			out.println("<h1>Hello.</h1>");
+			out.println("<p id='js-test'>I cannot read external JavaScript!</p>");
 			out.println("<b><a href=\"/on\">on</a></b>");
 			out.println("<br><br><br><br>");					//I put many breaks to make it easier on android phone.
 			out.println("<b><a href=\"/off\">off</a></b>");
 			out.println("</big></big>");
-			out.println("</body></html>");
+			out.println("</body>"
+					+ "<script src='/js/home.js'></script>"
+					+ "</html>");
 		} finally {
 			out.close(); // Always close the output writer
 		}
