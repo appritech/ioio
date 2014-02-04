@@ -32,7 +32,9 @@ public class ConfigIOIOServlet extends IOIOServlet {
 	private static final long serialVersionUID = 1L;
 
 	
-	/**
+	/***************************
+	 *  See WebDriver Class!!!
+	 ***************************
 	 * Run this main method just like any other java main method. Then, use your web-browser
 	 * to navigate to the following URLs:
 	 * http://localhost:8182/getConfig
@@ -41,19 +43,19 @@ public class ConfigIOIOServlet extends IOIOServlet {
 	 * This will turn the LED on or off. At startup, the IOIO's LED will turn on, which indicates
 	 * that the servlet is running and ready.
 	 */
-	public static void main(String[] args) throws Exception {
-		Tomcat tomcat = new Tomcat();
-		final int port = 8182;
-		tomcat.setPort(port);
-
-		Context ctx = tomcat.addContext("/", new File(".").getAbsolutePath());
-
-		Tomcat.addServlet(ctx, "IOIOSample", new ConfigIOIOServlet());
-		ctx.addServletMapping("/*", "IOIOSample");
-
-		tomcat.start();
-		tomcat.getServer().await();
-	}
+//	public static void main(String[] args) throws Exception {
+//		Tomcat tomcat = new Tomcat();
+//		final int port = 8182;
+//		tomcat.setPort(port);
+//
+//		Context ctx = tomcat.addContext("/", new File("web").getAbsolutePath());
+//
+//		Tomcat.addServlet(ctx, "IOIOSample", new ConfigIOIOServlet());
+//		ctx.addServletMapping("/config/*", "IOIOSample");
+//
+//		tomcat.start();
+//		tomcat.getServer().await();
+//	}
 	
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -99,24 +101,27 @@ public class ConfigIOIOServlet extends IOIOServlet {
 		
 		System.out.println("Get: " + req.getRequestURL().toString());
 
+		// Check for the GET parameter "resource"
+		String resource = req.getParameter("resource");
+		
 		// Write the response message, in an HTML document.
 		try {
-			if(req.getRequestURL().toString().endsWith("getconfig.xml")) {
-				
+			if (resource.equalsIgnoreCase("config.xml")) {
 				sendCurrentConfiguration(response, out);
 			}
 			else {
-				
 				sendOnOffDummyInfo(response, out);
 			}
 		} finally {
 			out.close(); // Always close the output writer
 		}
 
+		String action = req.getParameter("action");
+		
 		//Update internal state as needed
-		if (req.getRequestURL().toString().endsWith("on"))
+		if (action.equalsIgnoreCase("on"))
 			ledOn = true;
-		else if(req.getRequestURL().toString().endsWith("off"))
+		else if(action.equalsIgnoreCase("off"))
 			ledOn = false;
 	}
 
