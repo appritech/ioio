@@ -23,7 +23,7 @@ public class WebDriver {
 	
 	// Configure Servlets and their URL patterns
 	private final URLMapper[] URLPatterns = new URLMapper[]{
-			new URLMapper("/ioiohello", "HelloIOIOServlet", new HelloIOIOServlet()),
+//			new URLMapper("/ioiohello", "HelloIOIOServlet", new HelloIOIOServlet()),
 			new URLMapper("/ioioconfig", "ConfigIOIOServlet", new ConfigIOIOServlet()),
 	};
 	

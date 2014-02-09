@@ -20,15 +20,20 @@ import java.nio.file.Paths;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
+import org.w3c.dom.Document;
+
+import com.appritech.ioio.monitor.FlexIOIOLooper;
 
 public class ConfigIOIOServlet extends IOIOServlet {
 
 	private static final String CONFIG_FILENAME = "ioio_config.xml";
 	private static final String BLANK_CONFIGURATION = "<ioio></ioio>";			//TODO: Should be something different. Tommy decide.
-	boolean ledOn = true;
+	private FlexIOIOLooper looper;
 	private static final long serialVersionUID = 1L;
 
 	
@@ -106,7 +111,7 @@ public class ConfigIOIOServlet extends IOIOServlet {
 		
 		// Write the response message, in an HTML document.
 		try {
-			if (resource.equalsIgnoreCase("config.xml")) {
+			if (resource != null && resource.equalsIgnoreCase("config.xml")) {
 				sendCurrentConfiguration(response, out);
 			}
 			else {
@@ -120,9 +125,9 @@ public class ConfigIOIOServlet extends IOIOServlet {
 		
 		//Update internal state as needed
 		if (action.equalsIgnoreCase("on"))
-			ledOn = true;
+			looper.setLedVal(0.0f);
 		else if(action.equalsIgnoreCase("off"))
-			ledOn = false;
+			looper.setLedVal(1.0f);
 	}
 
 	private void sendOnOffDummyInfo(HttpServletResponse response, PrintWriter out) {
@@ -133,9 +138,9 @@ public class ConfigIOIOServlet extends IOIOServlet {
 		out.println("<title>IOIO</title></head>");
 		out.println("<body>");
 		out.println("<big><big>");
-		out.println("<b><a href=\"/on\">on</a></b>");
+		out.println("<b><a href=\"/ioioconfig?action=on\">on</a></b>");
 		out.println("<br><br><br><br>");					//I put many breaks to make it easier on android phone.
-		out.println("<b><a href=\"/off\">off</a></b>");
+		out.println("<b><a href=\"/ioioconfig?action=off\">off</a></b>");
 		out.println("</big></big>");
 		out.println("</body></html>");
 	}
@@ -157,8 +162,26 @@ public class ConfigIOIOServlet extends IOIOServlet {
 
 	@Override
 	public IOIOLooper createIOIOLooper(String connectionType, Object extra) {
+		
+		try {
+		
+			if(looper == null) {
+	            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+	            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+	            Document doc = docBuilder.parse (new File(CONFIG_FILENAME));
+				looper = new FlexIOIOLooper(doc);
+			}
+			
+			return looper;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
+		//This is just backup plan. LED will flash on/off which tells us an exception was thrown and it didn't confingure itself properly.
 		return new BaseIOIOLooper() {
 			private DigitalOutput led_;
+			private Boolean ledOn;
 
 			@Override
 			protected void setup() throws ConnectionLostException,
@@ -169,8 +192,9 @@ public class ConfigIOIOServlet extends IOIOServlet {
 			@Override
 			public void loop() throws ConnectionLostException,
 					InterruptedException {
+				ledOn = !ledOn;
 				led_.write(!ledOn);
-				Thread.sleep(10);
+				Thread.sleep(300);
 			}
 		};
 	}

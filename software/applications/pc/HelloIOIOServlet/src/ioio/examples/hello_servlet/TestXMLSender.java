@@ -58,7 +58,7 @@ public class TestXMLSender {
 
 		sb.append("<pins>");
 		sb.append(System.lineSeparator());
-		for(int i = 0; i < 24; i++) {
+		for(int i = 1; i < 24; i++) {
 			sb.append("\t<pin num=\"" + i + "\" type=\"din\"/>");
 			sb.append(System.lineSeparator());
 		}
