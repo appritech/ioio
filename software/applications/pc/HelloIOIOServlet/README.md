@@ -30,3 +30,4 @@ The following endpoints are (will soon be) available from the server.
 ###/api/trigger/
 
 - POST: Send signal to pin.
+    + pin: pin to trigger.
