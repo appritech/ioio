@@ -1,14 +1,10 @@
 package ioio.examples.hello_servlet;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
@@ -25,12 +21,12 @@ public class WebDriver {
 	private static HashMap<String, Context> contextMap = new HashMap<String, Context>();
 	
 	private final URLMapper[] URLPatterns = new URLMapper[]{
-			new URLMapper("/api/config", "APIConfig", new APIConfig()),
-			new URLMapper("/api/status", "APIStatus", new APIStatus()),
-			new URLMapper("/api/trigger", "APITrigger", new APITrigger()),
+			new URLMapper("/api/config", new APIConfig()),
+			new URLMapper("/api/status", new APIStatus()),
+			new URLMapper("/api/trigger", new APITrigger()),
 
-//			new URLMapper("/ioiohello", "HelloIOIOServlet", new HelloIOIOServlet()),
-//			new URLMapper("/ioioconfig", "ConfigIOIOServlet", new ConfigIOIOServlet()),
+//			new URLMapper("/ioiohello", new HelloIOIOServlet()),
+//			new URLMapper("/ioioconfig", new ConfigIOIOServlet()),
 	};
 	
 	
@@ -86,7 +82,6 @@ public class WebDriver {
 	 */
 	public class URLMapper {
 		private String pattern;
-		private String servletName;
 		private HttpServlet servlet;
 		private String context;
 		
@@ -97,9 +92,8 @@ public class WebDriver {
 		 * @param servletName
 		 * @param servlet
 		 */
-		public URLMapper(String url, String servletName, HttpServlet servlet){
+		public URLMapper(String url, HttpServlet servlet){
 			this.parsePattern(url);
-			this.servletName = servletName;
 			this.servlet = servlet;
 		}
 		
@@ -133,7 +127,7 @@ public class WebDriver {
 		}
 		
 		public String getServletName(){
-			return this.servletName;
+			return this.servlet.getClass().getSimpleName();
 		}
 		
 		public HttpServlet getServlet(){
