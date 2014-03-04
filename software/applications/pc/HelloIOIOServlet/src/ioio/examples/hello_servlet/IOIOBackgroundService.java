@@ -29,11 +29,23 @@ public class IOIOBackgroundService implements IOIOLooperProvider {
 	private boolean serviceRunning = true;
 	private FlexIOIOLooper looper;
 	private static final String CONFIG_FILENAME = "ioio_config.xml";
+	private static IOIOBackgroundService instance = null;
+	
+	public static IOIOBackgroundService getInstance() {
+		if(instance == null)
+			instance = new IOIOBackgroundService();
+		return instance;
+	}
 
 	/**
 	 * Constructor
 	 */
 	public IOIOBackgroundService() {
+		
+	}
+	
+	/** Start */
+	public void start() {
 		final IOIOBackgroundService self = this;
 		Thread th = new Thread() {
 			public synchronized void run() {
@@ -111,5 +123,18 @@ public class IOIOBackgroundService implements IOIOLooperProvider {
 				Thread.sleep(300);
 			}
 		};
+	}
+	
+	/** Sets the current status of an output pin. For digital outputs, value of 0.0f to turn off, and 1.0f to turn on */
+	public void setOutputValue(int pinNum, float val) {
+		if(looper != null)
+			looper.setOutputValue(pinNum, val);
+	}
+	
+	/** Returns the current status of an input pin. For digital inputs, value will be 0.0f if off(False), and 1.0f if on(True) */
+	public float getInputValue(int pinNum) {
+		if(looper != null)
+			return looper.getInputValue(pinNum);
+		return 0.0f;
 	}
 }

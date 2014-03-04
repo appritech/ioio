@@ -37,10 +37,10 @@ public class FlexPwmOutput extends FlexIOBase
 	}
 	
 	@Override
-	public void update(float val) throws InterruptedException, ConnectionLostException
+	public float update(float val) throws InterruptedException, ConnectionLostException
 	{
 		if(pwmout == null)
-			return;
+			return val;
 		
 		if(val > 1.0f)
 			val = 1.0f;
@@ -56,5 +56,6 @@ public class FlexPwmOutput extends FlexIOBase
 			else
 				pwmout.setDutyCycle(val);
 		}
+		return val;
 	}
 }

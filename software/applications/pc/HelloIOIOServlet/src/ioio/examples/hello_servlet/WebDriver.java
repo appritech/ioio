@@ -44,6 +44,8 @@ public class WebDriver {
 		tomcat.setPort(driver.port);
 		
 		try {
+			IOIOBackgroundService.getInstance().start();
+			
 			// By using 'addWebapp', I can setup a static web contents folder and still map servlets	
 			Context	ctx = tomcat.addWebapp("/", baseDir);
 			contextMap.put(ctx.getName(), ctx);
@@ -69,6 +71,9 @@ public class WebDriver {
 			e.printStackTrace();
 		} catch (LifecycleException e) {
 			e.printStackTrace();
+		}
+		finally {
+			IOIOBackgroundService.getInstance().destroy();
 		}
 	}
 	

@@ -18,18 +18,6 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 		updateIOIOState(doc);
 	}
 	
-	static
-	{
-		//There are 48 IO ports + the LED (which is port 0). Thus, this gives up LED = 0, and IO Ports 1 - 48
-		outputValues = new float[49];
-	}
-	
-	private void initBlank() {
-		//Create everything as Din
-		for(int i = 1; i <= 46; i++)
-			ioList.add(new FlexDigitalInput(i, ""));
-	}
-	
 	public void updateIOIOState(Document doc)
 	{
 		for(FlexIOBase iter : ioList) {
@@ -38,8 +26,8 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 		ioList.clear();
 		
 		NodeList listOfPins = doc.getElementsByTagName("pin");
-        int totalPersons = listOfPins.getLength();
-        System.out.println("Total no of pins : " + totalPersons);
+        int numPins = listOfPins.getLength();
+        System.out.println("Total no of pins : " + numPins);
         
         for(int i = 0; i < listOfPins.getLength(); i++) {
         	Element iter = (Element) listOfPins.item(i);
@@ -59,13 +47,25 @@ public class FlexIOIOLooper extends BaseIOIOLooper
         	}
         }
         
-        System.out.println("Finished - Total no of pins : " + totalPersons);
+        System.out.println("Finished - Total no of pins : " + numPins);
 	}
 	
 	private FlexDigitalOutput led;
 	private ArrayList<FlexIOBase> ioList = new ArrayList<FlexIOBase>();
 	private float ledVal;
-	public static float[] outputValues;
+	//There are 48 IO ports + the LED (which is port 0). Thus, this gives up LED = 0, and IO Ports 1 - 48
+	private float[] outputValues = new float[49];
+	private float[] inputValues = new float[49];
+	
+	/** Sets the current status of an output pin. For digital outputs, value of 0.0f to turn off, and 1.0f to turn on */
+	public void setOutputValue(int pinNum, float val) {
+		outputValues[pinNum] = val;
+	}
+	
+	/** Returns the current status of an input pin. For digital inputs, value will be 0.0f if off(False), and 1.0f if on(True) */
+	public float getInputValue(int pinNum) {
+		return inputValues[pinNum];
+	}
 	
 	@Override
 	protected void setup() throws ConnectionLostException, InterruptedException 
@@ -84,7 +84,7 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 		led.update(ledVal);
 		for (FlexIOBase iter : ioList)
 		{
-			iter.update(outputValues[iter.pinNum]);
+			inputValues[iter.pinNum] = iter.update(outputValues[iter.pinNum]);
 		}
 		
 		Thread.sleep(50);

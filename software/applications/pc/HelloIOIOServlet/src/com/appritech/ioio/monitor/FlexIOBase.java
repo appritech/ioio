@@ -14,9 +14,10 @@ public class FlexIOBase
 	{
 		//Should be overridden
 	}
-	public void update(float val) throws InterruptedException, ConnectionLostException
+	public float update(float val) throws InterruptedException, ConnectionLostException
 	{
 		//Should be overridden
+		return 0.0f;
 	}
 	public void close()
 	{

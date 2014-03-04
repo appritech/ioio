@@ -34,10 +34,10 @@ public class FlexAnalogInput extends FlexIOBase
 	}
 	
 	@Override
-	public void update(float val) throws InterruptedException, ConnectionLostException
+	public float update(float val) throws InterruptedException, ConnectionLostException
 	{
 		if(ain == null)
-			return;
+			return 0.0f;
 		
 		float readValue = ain.read();
 		if(needsInvert)
@@ -46,7 +46,8 @@ public class FlexAnalogInput extends FlexIOBase
 		if(lastValue != readValue)
 		{
 			lastValue = readValue;
-//			VolumeExtension.extensionContext.dispatchStatusEventAsync(eventName, Float.toString(readValue));
+			//TODO: Dispatch event on change
 		}
+		return readValue;
 	}
 }

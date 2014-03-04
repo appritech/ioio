@@ -44,10 +44,10 @@ public class FlexDigitalInput extends FlexIOBase
 	}
 	
 	@Override
-	public void update(float val) throws InterruptedException, ConnectionLostException
+	public float update(float val) throws InterruptedException, ConnectionLostException
 	{
 		if(din == null)
-			return;
+			return 0.0f;
 		
 		Boolean readValue = din.read();
 		if(needsInvert)
@@ -56,10 +56,8 @@ public class FlexDigitalInput extends FlexIOBase
 		if(lastValue != readValue)
 		{
 			lastValue = readValue;
-//			if(readValue)
-//				VolumeExtension.extensionContext.dispatchStatusEventAsync(eventName, "1");
-//			else
-//				VolumeExtension.extensionContext.dispatchStatusEventAsync(eventName, "0");
+			//TODO: Dispatch event on change
 		}
+		return readValue ? 1.0f : 0.0f;
 	}
 }

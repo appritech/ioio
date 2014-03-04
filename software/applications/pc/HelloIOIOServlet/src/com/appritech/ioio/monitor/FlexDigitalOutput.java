@@ -42,10 +42,10 @@ public class FlexDigitalOutput extends FlexIOBase
 	}
 	
 	@Override
-	public void update(float val) throws InterruptedException, ConnectionLostException
+	public float update(float val) throws InterruptedException, ConnectionLostException
 	{
 		if(dout == null)
-			return;
+			return val;
 		
 		if(val != lastValue)
 		{
@@ -56,5 +56,6 @@ public class FlexDigitalOutput extends FlexIOBase
 			
 			dout.write(output);
 		}
+		return val;
 	}
 }
