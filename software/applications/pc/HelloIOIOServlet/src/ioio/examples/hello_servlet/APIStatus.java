@@ -15,7 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 public class APIStatus extends HttpServlet {
 
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws IOException, ServletException {
-		
+		//Should be able to do something like the following:
+//		int pinNum = 1;
+//		float val = IOIOBackgroundService.getInstance().getInputValue(pinNum);
+		//Then, if it is a digital input, val = 0.0f if it is 'off' and 1.0f if it is 'on' (or false/true, however you want to think about it).
 	}
 
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
