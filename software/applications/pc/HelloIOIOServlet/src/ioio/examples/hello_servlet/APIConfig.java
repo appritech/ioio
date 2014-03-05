@@ -38,9 +38,7 @@ public class APIConfig extends HttpServlet {
 			try {
 				Path path = Paths.get(CONFIG_FILENAME);
 				byte[] xmlData = Files.readAllBytes(path);
-				String dumb = new String(xmlData);
-				System.out.println("dumb: " + dumb);
-				out.println(dumb);
+				out.println(new String(xmlData));
 			}
 			catch(Exception e) {
 				out.println(BLANK_CONFIGURATION);				//Return a blank configuration if nothing has been configured
@@ -65,8 +63,10 @@ public class APIConfig extends HttpServlet {
 			BufferedReader br = req.getReader();
 			String line;
 			FileWriter writer = new FileWriter(CONFIG_FILENAME);
+			writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+			
 			while ((line = br.readLine()) != null) {
-			    System.out.println("line: " + line);
+			    System.out.println(line);
 			    writer.write(line);
 			    writer.write(System.lineSeparator());
 			}

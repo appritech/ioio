@@ -92,14 +92,53 @@ IOIOApp.prototype = {
 
     saveConfig: function(){
         // Loop through config table rows, generate XML doc, POST to server
-        console.log("TODO: Build/Update XML doc and POST to server.");
+        var xmlDoc = document.implementation.createDocument(null, "ioio", null);
+
+        // for(var index = 0; index < $('#ioio-table-body tr').length; index++){
+        //     var row = $('#ioio-table-body tr').eq(index);
+        //     var pin = xmlDoc.createElement("pin");
+        //     xmlDoc.documentElement.appendChild(pin);
+        // }
+        $('#ioio-table-body tr').each(function(index){
+            var row = $(this),
+                pin = xmlDoc.createElement("pin"),
+                numCell = row.find('td').eq(0),
+                typeSelect = row.find('td').eq(1).find('select'),
+                subtypeSelect = row.find('td').eq(2).find('select');
+
+            pin.setAttribute('num', numCell.text());
+            pin.setAttribute('type', typeSelect.val());
+
+            if (subtypeSelect.length > 0){
+                pin.setAttribute('subtype', subtypeSelect.val());
+            }
+            xmlDoc.documentElement.appendChild(pin);
+
+        });
+
+        // console.log(xmlToString(xmlDoc));
+
+        $.ajax({ 
+            url: "/api/config",
+            type: "POST",
+            contentType: "text/xml",
+            data: xmlDoc,
+            processData: false,
+            error: function(req, status, error) { 
+                alert("No data found."); 
+            },
+            success: function() {
+                alert("Saved!");
+            }
+        });
     },
 
     attachHandlers: function(){
         // Attach Event handlers to Save new Config
         console.log("TODO: Attach event handlers to save XML");
     },
-    
+
+
     PinRow: function (app, node){
 
         this.node = node;
@@ -133,7 +172,9 @@ IOIOApp.prototype = {
                 if (curType == this.type){
                     htmlBuffer.push("selected='selected'");
                 }
-                htmlBuffer.push(">");
+                htmlBuffer.push(" value='");
+                htmlBuffer.push(key)
+                htmlBuffer.push("'>");
                 htmlBuffer.push(curType);
                 htmlBuffer.push("</option>");
             }
@@ -160,7 +201,9 @@ IOIOApp.prototype = {
                 if (curSubtype == this.subtype){
                     htmlBuffer.push("selected='selected'");
                 }
-                htmlBuffer.push(">");
+                htmlBuffer.push(" value='");
+                htmlBuffer.push(key)
+                htmlBuffer.push("'>");
                 htmlBuffer.push(curSubtype);
                 htmlBuffer.push("</option>");
             }
@@ -180,3 +223,12 @@ IOIOApp.prototype = {
 
 
 var ioapp = new IOIOApp;
+
+function xmlToString(doc){
+    if (window.ActiveXObject){ 
+        return xmlString = doc.xml; 
+    } else {
+        var oSerializer = new XMLSerializer(); 
+        return oSerializer.serializeToString(doc);
+    }
+}
