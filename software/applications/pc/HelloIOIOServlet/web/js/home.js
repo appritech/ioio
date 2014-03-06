@@ -46,6 +46,7 @@ IOIOApp.prototype = {
         $.get( "/api/config?resource=config.xml", function( xml ) {
             self.configXML = $( xml );
             self.setupTable();
+            self.attachHandlers();
         });
 
     },
@@ -94,11 +95,6 @@ IOIOApp.prototype = {
         // Loop through config table rows, generate XML doc, POST to server
         var xmlDoc = document.implementation.createDocument(null, "ioio", null);
 
-        // for(var index = 0; index < $('#ioio-table-body tr').length; index++){
-        //     var row = $('#ioio-table-body tr').eq(index);
-        //     var pin = xmlDoc.createElement("pin");
-        //     xmlDoc.documentElement.appendChild(pin);
-        // }
         $('#ioio-table-body tr').each(function(index){
             var row = $(this),
                 pin = xmlDoc.createElement("pin"),
@@ -116,8 +112,6 @@ IOIOApp.prototype = {
 
         });
 
-        // console.log(xmlToString(xmlDoc));
-
         $.ajax({ 
             url: "/api/config",
             type: "POST",
@@ -125,17 +119,54 @@ IOIOApp.prototype = {
             data: xmlDoc,
             processData: false,
             error: function(req, status, error) { 
-                alert("No data found."); 
+                console.log("Error");
+                console.log(error);
             },
             success: function() {
-                alert("Saved!");
+                console.log("XML Saved");
             }
         });
     },
 
     attachHandlers: function(){
-        // Attach Event handlers to Save new Config
-        console.log("TODO: Attach event handlers to save XML");
+        var self = this;
+
+        $( "tbody" ).on( "change", ".type-select", function(){
+            var subtypeMap = null,
+                subtypeCell = $(this).parent().next('td');
+
+            if ($(this).val() == 'din'){
+                subtypeMap = self.dinSubtypes;                
+            } else if ($(this).val() == 'dout'){
+                subtypeMap = self.doutSubtypes;
+            }
+
+            if (subtypeMap){
+                var subtypeSelect = subtypeCell.find('select');
+                if (subtypeSelect.length > 0){
+                    subtypeSelect.html("");
+                }else {
+                    subtypeSelect = $('<select class="subtype-select"></select>');
+                }
+
+                for (var key in subtypeMap){
+                    // check hasOwnProperty
+                    if (!subtypeMap.hasOwnProperty(key)){
+                        continue;
+                    }
+                    var option = $("<option></option>");
+                    var curSubtype = 
+                    option.val(key);
+                    option.text(subtypeMap[key]);
+                    subtypeSelect.append(option);
+                }
+                subtypeCell.html(subtypeSelect);
+
+            }else {
+                subtypeCell.html('');
+            }
+        });
+
     },
 
 
@@ -160,7 +191,7 @@ IOIOApp.prototype = {
         
         this.getTypeSelect = function(){
             var htmlBuffer = [];
-            htmlBuffer.push("<select>");
+            htmlBuffer.push("<select class='type-select'>");
             for (var key in app.pinTypes){
                 // check hasOwnProperty
                 if (!app.pinTypes.hasOwnProperty(key)){
@@ -187,7 +218,7 @@ IOIOApp.prototype = {
                 return ""
             }
             var htmlBuffer = [];
-            htmlBuffer.push("<select>");
+            htmlBuffer.push("<select class='subtype-select'>");
 
             for (var key in this.subtypeMap){
                 // check hasOwnProperty
