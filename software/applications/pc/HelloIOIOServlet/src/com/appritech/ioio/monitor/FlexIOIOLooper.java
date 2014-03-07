@@ -87,6 +87,10 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 			inputValues[iter.pinNum] = iter.update(outputValues[iter.pinNum]);
 		}
 		
+//		outputValues[11] = inputValues[1];
+//		outputValues[12] = inputValues[2];
+//		ledVal = inputValues[2];
+		
 		Thread.sleep(50);
 	}
 
