@@ -103,3 +103,7 @@ body {
 #ioio-table {
     border-bottom: 1px solid #EEE;
 }
+
+.table > tbody > tr > td.io-cell {
+    font-size: 1.3em;
+}

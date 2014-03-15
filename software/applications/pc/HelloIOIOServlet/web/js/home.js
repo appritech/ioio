@@ -81,7 +81,7 @@ IOIOApp.prototype = {
             strBuffer.push("</td>");
 
             // Pin I/O Status cell
-            strBuffer.push("<td>");
+            strBuffer.push("<td class='io-cell'>");
             strBuffer.push(pinRow.getIOStatusHTML());
             strBuffer.push("</td>");
             
