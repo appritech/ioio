@@ -37,7 +37,7 @@ IOIOApp.prototype = {
     init: function () {
         console.log("App Running!");
         this.getConfigXML();
-
+        this.ioPoller = new this.Poller()
     },
 
     getConfigXML: function() {
@@ -47,6 +47,7 @@ IOIOApp.prototype = {
             self.configXML = $( xml );
             self.setupTable();
             self.attachHandlers();
+            self.ioPoller.init();
         });
 
     },
@@ -89,6 +90,21 @@ IOIOApp.prototype = {
 
         this.tableContents = strBuffer.join("");
         $("#ioio-table-body").html(this.tableContents);
+
+        /* 
+         * Bootstrap Switch from:
+         * http://www.bootstrap-switch.org/#getting-started
+         *
+         */
+        $("input[name='trigger-pin']").bootstrapSwitch().on('switch-change', this.triggerPin);
+
+    },
+
+    triggerPin: function(e, data){
+        var $element = $(data.el);
+        $.post( "/api/trigger", {"pin": $element.data("pin"), "state": data.value },function( data ) {
+            console.log(data);
+        });
     },
 
     saveConfig: function(){
@@ -131,11 +147,14 @@ IOIOApp.prototype = {
     attachHandlers: function(){
         var self = this;
 
-        $( "tbody" ).on( "change", ".type-select", { "app": self }, self.updateDynamicInputsEvent);
+        $('tbody').on("change", ".type-select", { "app": self }, self.updateDynamicInputsEvent);
         $('.save-config').on("click", function(){ self.saveConfig() });
+    },
 
-        
-        
+    
+    updatePinStatus: function(self){
+        console.log("Updating IO status!");
+
     },
 
     updateDynamicInputsEvent: function(event){
@@ -175,7 +194,6 @@ IOIOApp.prototype = {
     },
 
     PinRow: function (app, node){
-
         this.node = node;
         this.number = node.getAttribute("num");
         this.typeAbbr = node.getAttribute("type");
@@ -195,7 +213,7 @@ IOIOApp.prototype = {
         
         this.getTypeSelect = function(){
             var htmlBuffer = [];
-            htmlBuffer.push("<select class='type-select'>");
+            htmlBuffer.push("<select class='form-control type-select'>");
             for (var key in app.pinTypes){
                 // check hasOwnProperty
                 if (!app.pinTypes.hasOwnProperty(key)){
@@ -222,7 +240,7 @@ IOIOApp.prototype = {
                 return ""
             }
             var htmlBuffer = [];
-            htmlBuffer.push("<select class='subtype-select'>");
+            htmlBuffer.push("<select class='form-control subtype-select'>");
 
             for (var key in this.subtypeMap){
                 // check hasOwnProperty
@@ -247,10 +265,42 @@ IOIOApp.prototype = {
         }
 
         this.getIOStatusHTML = function(){
-            if (this.typeAbbr == "ain"){
-                return "<input type='checkbox' />"
+            if (this.typeAbbr == "dout"){
+                return "<input type='checkbox' name='trigger-pin' data-pin=" + this.number + " />"
             }
-            return "<span class='label label-warning'>Stats</span>"
+            return "<span class='label label-warning " + this.typeAbbr +  "-stat' data-pin='" + this.number + "'>Unknown</span>"
+        }
+    },
+
+    Poller: function(){
+        // number of failed requests
+        this.failed = 0;
+
+        // starting interval - 1 second
+        this.interval = 1000;
+
+        // kicks off the setTimeout
+        this.init = function(){
+            setTimeout( $.proxy(this.getData, this), this.interval );
+        }
+
+        // get AJAX data + respond to it
+        this.getData = function(){
+            $('.din-stat').each(function(index){
+                var statusNode = $(this);
+                var pinNumber = statusNode.data('pin');
+                $.get( "/api/status?pin=" + pinNumber, function( status ) {
+                    statusNode.removeClass("label-warning");
+                    if(status == "true"){
+                        statusNode.addClass("label-success");
+                        statusNode.html("On");
+                    }else{
+                        statusNode.addClass("label-danger");
+                        statusNode.html("Off");
+                    }
+                });
+            });
+            this.init();
         }
     }
 

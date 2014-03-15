@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse;
  * @author tgroshon
  *
  */
+@SuppressWarnings("serial")
 public class APIConfig extends HttpServlet {
 	
 	private static final String CONFIG_FILENAME = "ioio_config.xml";
