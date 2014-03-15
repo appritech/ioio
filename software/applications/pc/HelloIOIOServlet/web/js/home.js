@@ -131,44 +131,48 @@ IOIOApp.prototype = {
     attachHandlers: function(){
         var self = this;
 
-        $( "tbody" ).on( "change", ".type-select", function(){
-            var subtypeMap = null,
-                subtypeCell = $(this).parent().next('td');
+        $( "tbody" ).on( "change", ".type-select", { "app": self }, self.updateDynamicInputsEvent);
+        $('.save-config').on("click", function(){ self.saveConfig() });
 
-            if ($(this).val() == 'din'){
-                subtypeMap = self.dinSubtypes;                
-            } else if ($(this).val() == 'dout'){
-                subtypeMap = self.doutSubtypes;
-            }
-
-            if (subtypeMap){
-                var subtypeSelect = subtypeCell.find('select');
-                if (subtypeSelect.length > 0){
-                    subtypeSelect.html("");
-                }else {
-                    subtypeSelect = $('<select class="subtype-select"></select>');
-                }
-
-                for (var key in subtypeMap){
-                    // check hasOwnProperty
-                    if (!subtypeMap.hasOwnProperty(key)){
-                        continue;
-                    }
-                    var option = $("<option></option>");
-                    var curSubtype = 
-                    option.val(key);
-                    option.text(subtypeMap[key]);
-                    subtypeSelect.append(option);
-                }
-                subtypeCell.html(subtypeSelect);
-
-            }else {
-                subtypeCell.html('');
-            }
-        });
-
+        
+        
     },
 
+    updateDynamicInputsEvent: function(event){
+        var subtypeMap = null,
+        subtypeCell = $(this).parent().next('td');
+
+        if ($(this).val() == 'din'){
+            subtypeMap = event.data.app.dinSubtypes;                
+        } else if ($(this).val() == 'dout'){
+            subtypeMap = event.data.app.doutSubtypes;
+        }
+
+        if (subtypeMap){
+            var subtypeSelect = subtypeCell.find('select');
+            if (subtypeSelect.length > 0){
+                subtypeSelect.html("");
+            }else {
+                subtypeSelect = $('<select class="subtype-select"></select>');
+            }
+
+            for (var key in subtypeMap){
+                // check hasOwnProperty
+                if (!subtypeMap.hasOwnProperty(key)){
+                    continue;
+                }
+                var option = $("<option></option>");
+                var curSubtype = 
+                    option.val(key);
+                option.text(subtypeMap[key]);
+                subtypeSelect.append(option);
+            }
+            subtypeCell.html(subtypeSelect);
+
+        }else {
+            subtypeCell.html('');
+        }
+    },
 
     PinRow: function (app, node){
 

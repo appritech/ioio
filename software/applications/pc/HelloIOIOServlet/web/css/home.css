@@ -91,3 +91,15 @@ body {
 .placeholder img {
   border-radius: 50%;
 }
+
+/*
+ * Custom
+ */ 
+
+.save-config {
+    float: right;
+}
+
+#ioio-table {
+    border-bottom: 1px solid #EEE;
+}
