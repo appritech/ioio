@@ -1,19 +1,21 @@
 package com.appritech.ioio.monitor;
 
+import org.w3c.dom.Element;
+
 import ioio.lib.api.DigitalInput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
 
 public class FlexDigitalInput extends FlexIOBase
 {
-	public FlexDigitalInput(int pinNum, String description)
+	public FlexDigitalInput(int pinNum, Element xml)
 	{
 		super(pinNum);
-		this.description = description;
+		this.xmlElement = xml;
 		this.pinNum = pinNum;
 		eventName = Integer.toString(pinNum);
 	}
-	private String description;
+	private Element xmlElement;
 	private DigitalInput din;
 	private Boolean needsInvert = false;
 	public Boolean lastValue = false;
@@ -22,16 +24,17 @@ public class FlexDigitalInput extends FlexIOBase
 	@Override
 	public void setup(IOIO ioio) throws ConnectionLostException
 	{
-		if(description.endsWith("FL"))
+		String subType = xmlElement.getAttribute("subtype");
+		if(subType.endsWith("FL"))
 		{
 			din = ioio.openDigitalInput(pinNum, DigitalInput.Spec.Mode.FLOATING);
 		}
-		else if(description.endsWith("PU"))
+		else if(subType.endsWith("PU"))
 		{
 			din = ioio.openDigitalInput(pinNum, DigitalInput.Spec.Mode.PULL_UP);
 			needsInvert = true;			//In order to read if the 'switch' is pressed or not, need to invert (i.e. pressed = low = 0)
 		}
-		else if(description.endsWith("PD"))
+		else if(subType.endsWith("PD"))
 		{
 			din = ioio.openDigitalInput(pinNum, DigitalInput.Spec.Mode.PULL_DOWN);
 		}

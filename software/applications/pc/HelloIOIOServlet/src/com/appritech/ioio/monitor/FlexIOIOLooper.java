@@ -35,13 +35,13 @@ public class FlexIOIOLooper extends BaseIOIOLooper
         		int pinNum = Integer.parseInt(iter.getAttribute("num"));
         		switch(iter.getAttribute("type")) {
         		case "din":
-        			ioList.add(new FlexDigitalInput(pinNum, iter.getAttribute("subtype")));
+        			ioList.add(new FlexDigitalInput(pinNum, iter));
         			break;
         		case "dout":
-        			ioList.add(new FlexDigitalOutput(pinNum, iter.getAttribute("subtype")));
+        			ioList.add(new FlexDigitalOutput(pinNum, iter));
         			break;
         		case "ain":
-        			ioList.add(new FlexAnalogInput(pinNum, iter.getAttribute("subtype")));
+        			ioList.add(new FlexAnalogInput(pinNum, iter));
         			break;
         		}
         	}
@@ -70,7 +70,7 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 	@Override
 	protected void setup() throws ConnectionLostException, InterruptedException 
 	{
-		led = new FlexDigitalOutput(IOIO.LED_PIN, "FL");
+		led = new FlexDigitalOutput(IOIO.LED_PIN, null);
 		led.setup(ioio_);
 		for (FlexIOBase iter : ioList)
 		{

@@ -1,18 +1,20 @@
 package com.appritech.ioio.monitor;
 
+import org.w3c.dom.Element;
+
 import ioio.lib.api.DigitalOutput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
 
 public class FlexDigitalOutput extends FlexIOBase
 {
-	public FlexDigitalOutput(int pinNum, String description)
+	public FlexDigitalOutput(int pinNum, Element xml)
 	{
 		super(pinNum);
-		this.description = description;
+		this.xmlElement = xml;
 		eventName = Integer.toString(pinNum);
 	}
-	private String description;
+	private Element xmlElement;
 	private DigitalOutput dout;
 	private Boolean needsInvert = false;
 	private float lastValue = -1.0f;
@@ -22,13 +24,20 @@ public class FlexDigitalOutput extends FlexIOBase
 	@Override
 	public void setup(IOIO ioio) throws ConnectionLostException
 	{
+		if(xmlElement == null)
+		{
+			//This is for the LED. 
+			dout = ioio.openDigitalOutput(pinNum);
+			return;
+		}
 		
-		if(description.endsWith("OD"))
+		String subType = xmlElement.getAttribute("subtype");
+		if(subType.endsWith("OD"))
 		{
 			dout = ioio.openDigitalOutput(pinNum, DigitalOutput.Spec.Mode.OPEN_DRAIN, true);
 			needsInvert = true;			//Open Drain mode works backwards. True leaves pin floating (i.e. LED not on), and false pulls it to ground (i.e. LED on)
 		}
-		else if(description.endsWith("FL"))		//Floating
+		else if(subType.endsWith("FL"))		//Floating
 		{
 			dout = ioio.openDigitalOutput(pinNum);
 		}

@@ -1,19 +1,21 @@
 package com.appritech.ioio.monitor;
 
+import org.w3c.dom.Element;
+
 import ioio.lib.api.AnalogInput;
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
 
 public class FlexAnalogInput extends FlexIOBase
 {
-	public FlexAnalogInput(int pinNum, String description)
+	public FlexAnalogInput(int pinNum, Element xml)
 	{
 		super(pinNum);
-		this.description = description;
+		this.xmlElement = xml;
 		this.pinNum = pinNum;
 		eventName = Integer.toString(pinNum);
 	}
-	private String description;
+	private Element xmlElement;
 	private AnalogInput ain;
 	private Boolean needsInvert = false;
 	public float lastValue = -1.0f;
@@ -22,8 +24,9 @@ public class FlexAnalogInput extends FlexIOBase
 	@Override
 	public void setup(IOIO ioio) throws ConnectionLostException
 	{
+		String subType = xmlElement.getAttribute("subtype");
 		ain = ioio.openAnalogInput(pinNum);
-		if(description.endsWith("Invert"))
+		if(subType.endsWith("Invert"))
 			needsInvert = true;
 	}
 	
