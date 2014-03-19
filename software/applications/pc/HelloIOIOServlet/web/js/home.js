@@ -69,6 +69,11 @@ IOIOApp.prototype = {
             strBuffer.push("<td>");
             strBuffer.push(pinRow.number);
             strBuffer.push("</td>");
+            
+            // Pin Name cell
+            strBuffer.push("<td>");
+            strBuffer.push(pinRow.getNameInput());
+            strBuffer.push("</td>");
 
             // Pin Type Cell
             strBuffer.push("<td>");
@@ -115,9 +120,11 @@ IOIOApp.prototype = {
             var row = $(this),
                 pin = xmlDoc.createElement("pin"),
                 numCell = row.find('td').eq(0),
-                typeSelect = row.find('td').eq(1).find('select'),
-                subtypeSelect = row.find('td').eq(2).find('select');
+                nameInput = row.find('td').eq(1).find('input'),
+                typeSelect = row.find('td').eq(2).find('select'),
+                subtypeSelect = row.find('td').eq(3).find('select');
 
+            pin.setAttribute('name', nameInput.val());
             pin.setAttribute('num', numCell.text());
             pin.setAttribute('type', typeSelect.val());
 
@@ -196,6 +203,7 @@ IOIOApp.prototype = {
     PinRow: function (app, node){
         this.node = node;
         this.number = node.getAttribute("num");
+        this.name = node.getAttribute("name") == null ? "" : node.getAttribute("name");
         this.typeAbbr = node.getAttribute("type");
         this.type = app.pinTypes[this.typeAbbr];
         this.subtypeAbbr = (node.hasAttribute("subtype"))? node.getAttribute("subtype"): null;
@@ -211,6 +219,11 @@ IOIOApp.prototype = {
             this.subtype = this.subtypeMap[this.subtypeAbbr];
         }
         
+
+        this.getNameInput = function(){
+            return "<input type='text' class='form-control' name='pin-name' value='" + this.name + "' placeholder='Pin Name...'/>"
+        }
+
         this.getTypeSelect = function(){
             var htmlBuffer = [];
             htmlBuffer.push("<select class='form-control type-select'>");
@@ -299,6 +312,7 @@ IOIOApp.prototype = {
                         statusNode.html("Off");
                     }
                 });
+
             });
             this.init();
         }
