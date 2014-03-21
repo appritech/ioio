@@ -21,6 +21,14 @@ public class FlexAnalogInput extends FlexIOBase
 	public float lastValue = -1.0f;
 	private String eventName;
 	
+	private float minInput;
+	private float centerInput;
+	private float maxInput;
+	private float minOutput;
+	private float centerOutput;
+	private float maxOutput;
+	private float deadband;
+	
 	@Override
 	public void setup(IOIO ioio) throws ConnectionLostException
 	{
@@ -52,6 +60,30 @@ public class FlexAnalogInput extends FlexIOBase
 			//TODO: Dispatch event on change
 			System.out.println("Ain valueChanged. pinNum: " + pinNum + "\t value: " + readValue);
 		}
-		return readValue;
+		return lastValue;
+	}
+	
+	@Override
+	public float getCalibratedValue() {
+		if(lastValue < minInput) {
+			return minOutput;
+		}
+		else if(lastValue < centerInput - deadband) {
+			//Lower half
+			float percent = (lastValue - minInput) / ((centerInput - deadband) - minInput);
+			return minOutput + percent * ((centerInput - deadband) - minInput);
+		}
+		else if(lastValue < centerInput + deadband) {
+			//deadband
+			return centerOutput;
+		}
+		else if(lastValue < maxOutput) {
+			//Upper half
+			float percent = (lastValue - (centerInput + deadband)) / (maxInput - (centerInput + deadband));
+			return (centerInput + deadband) + percent * (maxInput - (centerInput + deadband));
+		}
+		else {
+			return maxOutput;
+		}
 	}
 }

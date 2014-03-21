@@ -66,6 +66,11 @@ public class FlexDigitalOutput extends FlexIOBase
 			
 			dout.write(output);
 		}
-		return val;
+		return lastValue;
+	}
+	
+	@Override
+	public float getCalibratedValue() {
+		return lastValue;
 	}
 }

@@ -19,6 +19,10 @@ public class FlexIOBase
 		//Should be overridden
 		return 0.0f;
 	}
+	public float getCalibratedValue() {
+		//Should be overridden
+		return 0.0f;
+	}
 	public void close()
 	{
 		//Should be overridden

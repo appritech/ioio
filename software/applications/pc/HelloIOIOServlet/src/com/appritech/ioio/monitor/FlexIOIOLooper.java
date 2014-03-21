@@ -56,6 +56,7 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 	//There are 48 IO ports + the LED (which is port 0). Thus, this gives up LED = 0, and IO Ports 1 - 48
 	private float[] outputValues = new float[49];
 	private float[] inputValues = new float[49];
+	private float[] inputValuesCalibrated = new float[49];
 	
 	/** Sets the current status of an output pin. For digital outputs, value of 0.0f to turn off, and 1.0f to turn on */
 	public void setOutputValue(int pinNum, float val) {
@@ -65,6 +66,11 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 	/** Returns the current status of an input pin. For digital inputs, value will be 0.0f if off(False), and 1.0f if on(True) */
 	public float getInputValue(int pinNum) {
 		return inputValues[pinNum];
+	}
+	
+	/** Returns the calibrated value from an input pin. For digital inputs, value will be 0.0f if off(False), and 1.0f if on(True) */
+	public float getInputValueCalibrated(int pinNum) {
+		return inputValuesCalibrated[pinNum];
 	}
 	
 	@Override
