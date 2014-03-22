@@ -36,7 +36,6 @@ import org.xml.sax.SAXException;
 public class APIConfig extends HttpServlet {
 	
 	private static final String CONFIG_FILENAME = "ioio_config.xml";
-	private static final String BLANK_CONFIGURATION = "<ioio></ioio>";
 
 	/**
 	 * Serve the current configuration file in XML format.
@@ -56,7 +55,7 @@ public class APIConfig extends HttpServlet {
 				out.println(new String(xmlData));
 			}
 			catch(Exception e) {
-				out.println(BLANK_CONFIGURATION);				//Return a blank configuration if nothing has been configured
+				out.println(getBlankConfiguration());				//Return a blank configuration if nothing has been configured
 				
 			}
 		} finally {
@@ -118,6 +117,21 @@ public class APIConfig extends HttpServlet {
 			out.write("Done");
 			out.close(); // Always close the output writer
 		}
+	}
+	
+	private static String getBlankConfiguration() {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>");
+		sb.append("<ioio>");
+		
+		for(int i = 1; i <= 46; i++) {
+			sb.append("<pin FalseValue=\"0\" TrueValue=\"1\" name=\"\" num=\"" + i + "\" subtype=\"FL\" type=\"din\"/>");
+		}
+		
+		sb.append("</ioio>");
+		
+		return sb.toString();
 	}
 
 }
