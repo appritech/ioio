@@ -91,6 +91,7 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 		for (FlexIOBase iter : ioList)
 		{
 			inputValues[iter.pinNum] = iter.update(outputValues[iter.pinNum]);
+			inputValuesCalibrated[iter.pinNum] = iter.getCalibratedValue(); 
 		}
 		
 //		outputValues[11] = inputValues[1];
