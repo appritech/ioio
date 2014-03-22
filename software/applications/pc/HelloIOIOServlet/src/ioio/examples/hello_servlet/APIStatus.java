@@ -108,7 +108,8 @@ public class APIStatus extends HttpServlet {
 			pin.setAttribute("num", String.valueOf(String.valueOf(pinNumber)));
 
 			// Get Value from IOIO Service
-			float val = IOIOBackgroundService.getInstance().getInputValue(pinNumber);
+//			float val = IOIOBackgroundService.getInstance().getInputValue(pinNumber);
+			float val = (i % 2 == 0)? 1.0f : 0.0f;
 			
 			pin.setAttribute("status", String.valueOf(val));
 			rootElement.appendChild(pin);

@@ -25,15 +25,13 @@ public class APITrigger extends HttpServlet {
 		PrintWriter out = response.getWriter();
 
 		try {
-			String state = req.getParameter("state");
-			float value = state.equalsIgnoreCase("true")? 1.0f : 0.0f;
-			String pin = req.getParameter("pin");
-			int pinNum = Integer.parseInt(pin);
+			float value = Float.parseFloat(req.getParameter("state"));
+			int pinNum = Integer.parseInt(req.getParameter("pin"));
 			
 			IOIOBackgroundService.getInstance().setOutputValue(pinNum, value);
-			System.out.println("pin: " + pin + "\nValue: " + String.valueOf(value));
+			System.out.println("pin: " + String.valueOf(pinNum) + "\nValue: " + String.valueOf(value));
 			
-			out.write("done");
+			out.write("Success");
 		}catch (Exception e){
 			//TODO add better error handling
 			out.write("Server Error");

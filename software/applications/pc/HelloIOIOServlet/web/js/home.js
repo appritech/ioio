@@ -37,11 +37,10 @@ IOIOApp.prototype = {
 
         // Loop through XML config Doc and create the table for 
         this.configXML.find("pin").each(function(index, pin){
-            var pinObject = new PinRow(self, pin);
             var guid = self.utility.generateGUID();
-            pinObject.guid = guid;
-
+            var pinObject = new PinRow(guid, pin, self);
             var strBuffer = [];
+
             // Start Row
             strBuffer.push("<tr data-guid='" + guid + "'>");
             
@@ -84,8 +83,10 @@ IOIOApp.prototype = {
             self.pinRowStore[guid] = pinObject;
             pinObject.setRowElement(row);
             tableBody.append(row);
+            pinObject.createPopover();
         });
-
+        
+        
     },
 
     attachHandlers: function(){
@@ -94,19 +95,17 @@ IOIOApp.prototype = {
         $('tbody').on("change", "input[name='trigger-pin']", {"app": self}, self.triggerPinEvent);
         $('tbody').on("click", "button.calibration-save", {"app": self}, self.collectCalibrationEvent);
         $('.save-config').on("click", function(){ self.saveConfigEvent() });
-
-        // TODO: setup initial content
-        $("button.din-popover").popover({html: true, content: "<h2>Hi</h2>"});
-        $("button.ain-popover").popover({html: true, content: "<h2>Bye</h2>"});
     },
 
     collectCalibrationEvent: function(event){
-        var button = $(this);
-            guid = button.data('pin-guid'),
+        var guid = $(this).data('pin-guid'),
             pinObject = event.data.app.pinRowStore[guid];
 
-        // TODO: Collect inputs in the parent and send to pinObject
-        console.log("Saving data for: ", guid);
+        // Collect inputs in the parent and send to pinObject
+        pinObject.updateCalibrationData();
+        
+        // Hide the popover
+        // pinObject.hidePopover();
     },
 
     updateDynamicInputsEvent: function(event){
@@ -121,10 +120,11 @@ IOIOApp.prototype = {
     triggerPinEvent: function(event){
         var element = $(this);
             guid = element.parent().parent().data('guid'),
-            pinObject = event.data.app.pinRowStore[guid];
-        
-        // TODO send state from calibration data
-        $.post("/api/trigger", {"pin": pinObject.number, "state": 0 }, function( data){
+            pinObject = event.data.app.pinRowStore[guid],
+            state = (this.checked)? pinObject.calibrationData.TrueValue : pinObject.calibrationData.FalseValue;
+
+        // Send state from calibration data
+        $.post("/api/trigger", {"pin": pinObject.number, "state": state }, function( data){
             console.log(data);
         });
         // For Bootstrap Switch
@@ -149,10 +149,18 @@ IOIOApp.prototype = {
             pin.setAttribute('num', pinObject.number);
             pin.setAttribute('type', pinObject.getType());
 
-            if (pinObject.type == 'dout' || pinObject.type == 'din'){
+            // Set Subtype
+            if (pinObject.getType() != 'ain'){
                 pin.setAttribute('subtype', pinObject.getSubtype());
             }
 
+            // Set Calibration Data
+            for (var key in pinObject.calibrationData){
+                if (!pinObject.calibrationData.hasOwnProperty(key)){  // check hasOwnProperty
+                    continue;
+                }
+                pin.setAttribute(key, pinObject.calibrationData[key]);
+            }
             xmlDoc.documentElement.appendChild(pin);
         });
 
