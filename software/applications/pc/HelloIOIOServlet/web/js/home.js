@@ -8,36 +8,14 @@ var IOIOApp = function () {
 }
 
 IOIOApp.prototype = {
-    doutSubtypes: {
-        "OD": "Open-Drain",
-        "NL": "Normal"
-    },
-
-    dinSubtypes: {
-        "FL": "Float",
-        "PD": "Pull-Down",
-        "PU": "Pull-Up",
-    },
-
-    pinTypes: {
-        "ain": "Analog In",
-        "dout": "Digital Out",
-        "din": "Digital In"
-    },
-
-    analogValues: {
-        "MinInput": 0,
-        "MaxInput": 3.28676,
-        "CenterInput": 1.6976545,
-        "MinOutput": -100,
-        "MaxOutput": 100,
-        "CenterOutput": 0
-    },
 
     init: function () {
         console.log("App Running!");
+        this.dirtyConfig = true;
+        this.utility = new Utility();
         this.getConfigXML();
-        this.ioPoller = new this.Poller()
+        this.poller = new Poller(this);
+        this.pinRowStore = {};
     },
 
     getConfigXML: function() {
@@ -47,92 +25,135 @@ IOIOApp.prototype = {
             self.configXML = $( xml );
             self.setupTable();
             self.attachHandlers();
-            self.ioPoller.init();
+            self.poller.init();
+            self.dirtyConfig = false;
         });
 
     },
 
     setupTable: function(){
-        // Loop through XML config Doc and create the table for 
-        var strBuffer = [];
         var self = this;
-        self.pinRowStore = [];
+        var tableBody = $("#ioio-table-body");
 
-        // https://developer.mozilla.org/en-US/docs/Web/API/element
-        self.configXML.find("pin").each(function(index, pin){
-            var pinRow = new self.PinRow(self, pin);
-            self.pinRowStore.push(pinRow);
+        // Loop through XML config Doc and create the table for 
+        this.configXML.find("pin").each(function(index, pin){
+            var pinObject = new PinRow(self, pin);
+            var guid = self.utility.generateGUID();
+            pinObject.guid = guid;
 
-            strBuffer.push("<tr>");
+            var strBuffer = [];
+            // Start Row
+            strBuffer.push("<tr data-guid='" + guid + "'>");
             
             // Pin Number Cell
             strBuffer.push("<td>");
-            strBuffer.push(pinRow.number);
+            strBuffer.push(pinObject.number);
             strBuffer.push("</td>");
             
             // Pin Name cell
             strBuffer.push("<td>");
-            strBuffer.push(pinRow.getNameInput());
+            strBuffer.push(pinObject.getNameInput());
             strBuffer.push("</td>");
 
             // Pin Type Cell
             strBuffer.push("<td>");
-            strBuffer.push(pinRow.getTypeSelect());
+            strBuffer.push(pinObject.getTypeSelect());
             strBuffer.push("</td>");
 
             // Pin Subtype Cell
             strBuffer.push("<td>");
-            strBuffer.push(pinRow.getSubtypeSelect());
+            strBuffer.push(pinObject.getSubtypeSelect());
             strBuffer.push("</td>");
 
+            // Pin Calibration Cell
+            strBuffer.push("<td>");
+            strBuffer.push(pinObject.getCalibrationButton());
+            strBuffer.push("</td>");
+
+            
             // Pin I/O Status cell
             strBuffer.push("<td class='io-cell'>");
-            strBuffer.push(pinRow.getIOStatusHTML());
+            strBuffer.push(pinObject.getIOStatusHTML());
             strBuffer.push("</td>");
-            
+
+            // End Row
             strBuffer.push("</tr>");
+            
+            var row = $(strBuffer.join(""));
+
+            self.pinRowStore[guid] = pinObject;
+            pinObject.setRowElement(row);
+            tableBody.append(row);
         });
-
-        this.tableContents = strBuffer.join("");
-        $("#ioio-table-body").html(this.tableContents);
-
-        /* 
-         * Bootstrap Switch from:
-         * http://www.bootstrap-switch.org/#getting-started
-         *
-         */
-        $("input[name='trigger-pin']").bootstrapSwitch().on('switch-change', this.triggerPin);
 
     },
 
-    triggerPin: function(e, data){
-        var $element = $(data.el);
-        $.post( "/api/trigger", {"pin": $element.data("pin"), "state": data.value },function( data ) {
+    attachHandlers: function(){
+        var self = this;
+        $('tbody').on("change", ".type-select", { "app": self }, self.updateDynamicInputsEvent);
+        $('tbody').on("change", "input[name='trigger-pin']", {"app": self}, self.triggerPinEvent);
+        $('tbody').on("click", "button.calibration-save", {"app": self}, self.collectCalibrationEvent);
+        $('.save-config').on("click", function(){ self.saveConfigEvent() });
+
+        // TODO: setup initial content
+        $("button.din-popover").popover({html: true, content: "<h2>Hi</h2>"});
+        $("button.ain-popover").popover({html: true, content: "<h2>Bye</h2>"});
+    },
+
+    collectCalibrationEvent: function(event){
+        var button = $(this);
+            guid = button.data('pin-guid'),
+            pinObject = event.data.app.pinRowStore[guid];
+
+        // TODO: Collect inputs in the parent and send to pinObject
+        console.log("Saving data for: ", guid);
+    },
+
+    updateDynamicInputsEvent: function(event){
+        event.data.app.dirtyConfig = true;
+        
+        var guid = $(this).parent().parent().data('guid'),
+            newTypeAbbr = $(this).val();
+
+        event.data.app.pinRowStore[guid].updateType(newTypeAbbr);
+    },
+
+    triggerPinEvent: function(event){
+        var element = $(this);
+            guid = element.parent().parent().data('guid'),
+            pinObject = event.data.app.pinRowStore[guid];
+        
+        // TODO send state from calibration data
+        $.post("/api/trigger", {"pin": pinObject.number, "state": 0 }, function( data){
             console.log(data);
         });
+        // For Bootstrap Switch
+        // var $element = $(data.el);
+        // $.post( "/api/trigger", {"pin": $element.data("pin"), "state": data.value },function( data ) {
+        //     console.log(data);
+        // });
     },
 
-    saveConfig: function(){
-        // Loop through config table rows, generate XML doc, POST to server
+    saveConfigEvent: function(){
+        var self = this;
         var xmlDoc = document.implementation.createDocument(null, "ioio", null);
 
+        // Loop through config table rows, generate XML doc, POST to server
         $('#ioio-table-body tr').each(function(index){
             var row = $(this),
                 pin = xmlDoc.createElement("pin"),
-                numCell = row.find('td').eq(0),
-                nameInput = row.find('td').eq(1).find('input'),
-                typeSelect = row.find('td').eq(2).find('select'),
-                subtypeSelect = row.find('td').eq(3).find('select');
+                guid = row.data('guid'),
+                pinObject = self.pinRowStore[guid];
 
-            pin.setAttribute('name', nameInput.val());
-            pin.setAttribute('num', numCell.text());
-            pin.setAttribute('type', typeSelect.val());
+            pin.setAttribute('name', pinObject.getName());
+            pin.setAttribute('num', pinObject.number);
+            pin.setAttribute('type', pinObject.getType());
 
-            if (subtypeSelect.length > 0){
-                pin.setAttribute('subtype', subtypeSelect.val());
+            if (pinObject.type == 'dout' || pinObject.type == 'din'){
+                pin.setAttribute('subtype', pinObject.getSubtype());
             }
-            xmlDoc.documentElement.appendChild(pin);
 
+            xmlDoc.documentElement.appendChild(pin);
         });
 
         $.ajax({ 
@@ -144,190 +165,29 @@ IOIOApp.prototype = {
             error: function(req, status, error) { 
                 console.log("Error");
                 console.log(error);
+                console.log(status);
+                console.log(req);
             },
             success: function() {
                 console.log("XML Saved");
+                self.dirtyConfig = false;
+                self.poller.restart();
             }
         });
     },
 
-    attachHandlers: function(){
-        var self = this;
 
-        $('tbody').on("change", ".type-select", { "app": self }, self.updateDynamicInputsEvent);
-        $('.save-config').on("click", function(){ self.saveConfig() });
-    },
-
-    
-    updatePinStatus: function(self){
-        console.log("Updating IO status!");
-
-    },
-
-    updateDynamicInputsEvent: function(event){
-        var subtypeMap = null,
-        subtypeCell = $(this).parent().next('td');
-
-        if ($(this).val() == 'din'){
-            subtypeMap = event.data.app.dinSubtypes;                
-        } else if ($(this).val() == 'dout'){
-            subtypeMap = event.data.app.doutSubtypes;
-        }
-
-        if (subtypeMap){
-            var subtypeSelect = subtypeCell.find('select');
-            if (subtypeSelect.length > 0){
-                subtypeSelect.html("");
-            }else {
-                subtypeSelect = $('<select class="subtype-select"></select>');
-            }
-
-            for (var key in subtypeMap){
-                // check hasOwnProperty
-                if (!subtypeMap.hasOwnProperty(key)){
-                    continue;
-                }
-                var option = $("<option></option>");
-                var curSubtype = 
-                    option.val(key);
-                option.text(subtypeMap[key]);
-                subtypeSelect.append(option);
-            }
-            subtypeCell.html(subtypeSelect);
-
-        }else {
-            subtypeCell.html('');
-        }
-    },
-
-    PinRow: function (app, node){
-        this.node = node;
-        this.number = node.getAttribute("num");
-        this.name = node.getAttribute("name") == null ? "" : node.getAttribute("name");
-        this.typeAbbr = node.getAttribute("type");
-        this.type = app.pinTypes[this.typeAbbr];
-        this.subtypeAbbr = (node.hasAttribute("subtype"))? node.getAttribute("subtype"): null;
-        this.subtype = null;
-
-        if (this.typeAbbr == "dout"){
-            this.subtypeMap = app.doutSubtypes;
-        } else if (this.typeAbbr == "din"){
-            this.subtypeMap = app.dinSubtypes;
-        }
-
-        if (this.subtypeMap){
-            this.subtype = this.subtypeMap[this.subtypeAbbr];
-        }
-        
-
-        this.getNameInput = function(){
-            return "<input type='text' class='form-control' name='pin-name' value='" + this.name + "' placeholder='Pin Name...'/>"
-        }
-
-        this.getTypeSelect = function(){
-            var htmlBuffer = [];
-            htmlBuffer.push("<select class='form-control type-select'>");
-            for (var key in app.pinTypes){
-                // check hasOwnProperty
-                if (!app.pinTypes.hasOwnProperty(key)){
-                    continue;
-                }
-
-                var curType = app.pinTypes[key];
-                htmlBuffer.push("<option ")
-                if (curType == this.type){
-                    htmlBuffer.push("selected='selected'");
-                }
-                htmlBuffer.push(" value='");
-                htmlBuffer.push(key)
-                htmlBuffer.push("'>");
-                htmlBuffer.push(curType);
-                htmlBuffer.push("</option>");
-            }
-            htmlBuffer.push("</select>");
-            return htmlBuffer.join("");
-        }
-
-        this.getSubtypeSelect = function(){
-            if (this.typeAbbr == 'ain'){
-                return ""
-            }
-            var htmlBuffer = [];
-            htmlBuffer.push("<select class='form-control subtype-select'>");
-
-            for (var key in this.subtypeMap){
-                // check hasOwnProperty
-                if (!this.subtypeMap.hasOwnProperty(key)){
-                    continue;
-                }
-
-                var curSubtype = this.subtypeMap[key];
-
-                htmlBuffer.push("<option ")
-                if (curSubtype == this.subtype){
-                    htmlBuffer.push("selected='selected'");
-                }
-                htmlBuffer.push(" value='");
-                htmlBuffer.push(key)
-                htmlBuffer.push("'>");
-                htmlBuffer.push(curSubtype);
-                htmlBuffer.push("</option>");
-            }
-            htmlBuffer.push("</select>");
-            return htmlBuffer.join("");
-        }
-
-        this.getIOStatusHTML = function(){
-            if (this.typeAbbr == "dout"){
-                return "<input type='checkbox' name='trigger-pin' data-pin=" + this.number + " />"
-            }
-            return "<span class='label label-warning " + this.typeAbbr +  "-stat' data-pin='" + this.number + "'>Unknown</span>"
-        }
-    },
-
-    Poller: function(){
-        // number of failed requests
-        this.failed = 0;
-
-        // starting interval - 1 second
-        this.interval = 1000;
-
-        // kicks off the setTimeout
-        this.init = function(){
-            setTimeout( $.proxy(this.getData, this), this.interval );
-        }
-
-        // get AJAX data + respond to it
-        this.getData = function(){
-            $('.din-stat').each(function(index){
-                var statusNode = $(this);
-                var pinNumber = statusNode.data('pin');
-                $.get( "/api/status?pin=" + pinNumber, function( status ) {
-                    statusNode.removeClass("label-warning");
-                    if(status == "true"){
-                        statusNode.addClass("label-success");
-                        statusNode.html("On");
-                    }else{
-                        statusNode.addClass("label-danger");
-                        statusNode.html("Off");
-                    }
-                });
-
-            });
-            this.init();
-        }
+    /* 
+     * Bootstrap Switch from:
+     * http://www.bootstrap-switch.org/#getting-started
+     *
+     * DEPRECATED because it gets weird when it Destroys switches
+     */
+    attachSwitches: function(){
+        $("input[name='trigger-pin']").bootstrapSwitch().on('switch-change', this.triggerPinEvent);
     }
-
+    
 }
-
 
 var ioapp = new IOIOApp;
 
-function xmlToString(doc){
-    if (window.ActiveXObject){ 
-        return xmlString = doc.xml; 
-    } else {
-        var oSerializer = new XMLSerializer(); 
-        return oSerializer.serializeToString(doc);
-    }
-}
