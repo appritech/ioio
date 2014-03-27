@@ -11,6 +11,7 @@ IOIOApp.prototype = {
 
     init: function () {
         console.log("App Running!");
+
         this.dirtyConfig = true;
         this.utility = new Utility();
         this.getConfigXML();
@@ -103,9 +104,6 @@ IOIOApp.prototype = {
 
         // Collect inputs in the parent and send to pinObject
         pinObject.updateCalibrationData();
-        
-        // Hide the popover
-        // pinObject.hidePopover();
     },
 
     updateDynamicInputsEvent: function(event){
@@ -119,9 +117,9 @@ IOIOApp.prototype = {
 
     triggerPinEvent: function(event){
         var element = $(this);
-            guid = element.parent().parent().data('guid'),
+            guid = element.parents('tr').data('guid'),
             pinObject = event.data.app.pinRowStore[guid],
-            state = (this.checked)? pinObject.calibrationData.TrueValue : pinObject.calibrationData.FalseValue;
+            state = (this.checked)? pinObject.calibrationData.True : pinObject.calibrationData.False;
 
         // Send state from calibration data
         $.post("/api/trigger", {"pin": pinObject.number, "state": state }, function( data){
@@ -156,10 +154,9 @@ IOIOApp.prototype = {
 
             // Set Calibration Data
             for (var key in pinObject.calibrationData){
-                if (!pinObject.calibrationData.hasOwnProperty(key)){  // check hasOwnProperty
-                    continue;
+                if (pinObject.calibrationData.hasOwnProperty(key)){  // check hasOwnProperty
+                    pin.setAttribute(key + "Value", pinObject.calibrationData[key]);                    
                 }
-                pin.setAttribute(key, pinObject.calibrationData[key]);
             }
             xmlDoc.documentElement.appendChild(pin);
         });
@@ -198,4 +195,6 @@ IOIOApp.prototype = {
 }
 
 var ioapp = new IOIOApp;
+
+
 

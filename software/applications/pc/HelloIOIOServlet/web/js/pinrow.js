@@ -4,34 +4,39 @@ var PinRow = function (guid, node, app) {
     this.guid = guid; 
     this.node = node;
     this.app = app;
-
-    // https://developer.mozilla.org/en-US/docs/Web/API/element
-    this.number = this.node.getAttribute("num");
-    this.name = this.node.getAttribute("name") == null ? "" : this.node.getAttribute("name");
-    this.type = this.node.getAttribute("type");
-    this.typePretty = this.app.utility.pinTypes[this.type];
-    this.subtype = (this.node.hasAttribute("subtype"))? this.node.getAttribute("subtype"): null;
-    this.subtypePretty = null;
-    this.subtypeMap = null;
-
-    this.calibrationData = null;
-
-
-    if (this.type == "dout"){
-        this.subtypeMap = this.app.utility.doutSubtypes;
-    } else if (this.type == "din"){
-        this.subtypeMap = this.app.utility.dinSubtypes;
-    }
-
-    if (this.subtypeMap){
-        this.subtypePretty = this.subtypeMap[this.subtype];
-    }
-
-    
-    this.setDefaultCalibration();
+    this.parseNodeAttributes();
+    this.parseCalibrationData();
 }
 
 PinRow.prototype = {
+
+    /*  Parse XML nodes
+     *
+     *  https://developer.mozilla.org/en-US/docs/Web/API/element
+     */
+    parseNodeAttributes: function(){
+        try {
+            this.number = this.node.getAttribute("num");
+            this.name = this.node.getAttribute("name") == null ? "" : this.node.getAttribute("name");
+            this.type = this.node.getAttribute("type");
+            this.typePretty = this.app.utility.defaultData.Types[this.type];
+            this.subtype = (this.node.hasAttribute("subtype"))? this.node.getAttribute("subtype"): null;
+            this.calibrationData = null;
+
+            try {
+                if (this.subtype != null){
+                    this.subtypePretty = this.app.utility.defaultData.Types[this.type].SubTypes[this.subtype];
+                }
+            } catch (e){
+                this.subtypePretty = "";
+            }
+            
+        } catch (exc){
+            // throw new this.app.utility.XmlException(exc.message);
+            throw { message: exc.message }
+        }
+
+    },
 
     /* Set after creation with following cells
      * 0 = Pin Number
@@ -52,21 +57,33 @@ PinRow.prototype = {
     },
 
     getName: function(){
-        this.name = this.nameCell.find('input').val();
-        return this.name
+        try {
+            this.name = this.nameCell.find('input').val();
+            return this.name
+        } catch (exc){
+            return "";
+        }
     },
 
     getType: function(){
-        var typeSelectValue = this.typeCell.find('select').val();
-        if (this.type != typeSelectValue){
-            this.updateType(typeSelectValue);
+        try {
+            var typeSelectValue = this.typeCell.find('select').val();
+            if (this.type != typeSelectValue){
+                this.updateType(typeSelectValue);
+            }
+            return this.type;
+        } catch (exc){
+            return "";
         }
-        return this.type;
     },
 
     getSubtype: function(){
-        this.subtype = this.subtypeCell.find('select').val();
-        return this.subtype;
+        try {
+            this.subtype = this.subtypeCell.find('select').val();
+            return this.subtype;
+        } catch (exc){
+            return "";
+        }
     },
 
     destroyPopover: function(){
@@ -81,46 +98,47 @@ PinRow.prototype = {
         $("#" + this.guid + "-popover").popover("hide");
     },
     
-    setDefaultCalibration: function(){
+    parseCalibrationData: function(){
+        var defaultCalibration = this.app.utility.defaultData.Types[this.type].CalibrationData;
         if (this.type == 'ain'){
             // Parse Node for calibration Data and set Default for missing values
             this.calibrationData = {
-                MinInputValue: (this.node.hasAttribute("MinInputValue"))? parseFloat(this.node.getAttribute("MinInputValue")) : 0.0,
-                MaxInputValue: (this.node.hasAttribute("MaxInputValue"))? parseFloat(this.node.getAttribute("MaxInputValue")) : 3.28676,
-                CenterInputValue: (this.node.hasAttribute("CenterInputValue"))? parseFloat(this.node.getAttribute("CenterInputValue")) : 1.6976545,
-                MinOutputValue: (this.node.hasAttribute("MinOutputValue"))? parseFloat(this.node.getAttribute("MinOutputValue")) : -100.0,
-                MaxOutputValue: (this.node.hasAttribute("MaxOutputValue"))? parseFloat(this.node.getAttribute("MaxOutputValue")) : 100.0,
-                CenterOutputValue: (this.node.hasAttribute("CenterOutputValue"))? parseFloat(this.node.getAttribute("CenterOutputValue")) : 0.0,
-                DeadpanValue: (this.node.hasAttribute("DeadpanValue"))? parseFloat(this.node.getAttribute("DeadpanValue")) : 0.0
+                MinInput: (this.node.hasAttribute("MinInputValue"))? parseFloat(this.node.getAttribute("MinInputValue")) : defaultCalibration['MinInput'],
+                MaxInput: (this.node.hasAttribute("MaxInputValue"))? parseFloat(this.node.getAttribute("MaxInputValue")) : defaultCalibration['MaxInput'],
+                CenterInput: (this.node.hasAttribute("CenterInputValue"))? parseFloat(this.node.getAttribute("CenterInputValue")) : defaultCalibration['CenterInput'],
+                MinOutput: (this.node.hasAttribute("MinOutputValue"))? parseFloat(this.node.getAttribute("MinOutputValue")) : defaultCalibration['MinOutput'],
+                MaxOutput: (this.node.hasAttribute("MaxOutputValue"))? parseFloat(this.node.getAttribute("MaxOutputValue")) : defaultCalibration['MaxOutput'],
+                CenterOutput: (this.node.hasAttribute("CenterOutputValue"))? parseFloat(this.node.getAttribute("CenterOutputValue")) : defaultCalibration['CenterOutput'],
+                Deadpan: (this.node.hasAttribute("DeadpanValue"))? parseFloat(this.node.getAttribute("DeadpanValue")) : defaultCalibration['Deadpan']
             }
         }else {
             this.calibrationData = {
-                TrueValue: (this.node.hasAttribute("TrueValue"))? parseFloat(this.node.getAttribute("TrueValue")) : 1.0,
-                FalseValue: (this.node.hasAttribute("FalseValue"))? parseFloat(this.node.getAttribute("FalseValue")) : 0.0,
+                True: (this.node.hasAttribute("TrueValue"))? parseFloat(this.node.getAttribute("TrueValue")) : defaultCalibration['True'],
+                False: (this.node.hasAttribute("FalseValue"))? parseFloat(this.node.getAttribute("FalseValue")) : defaultCalibration['False']
             }
         }
     },
 
-    updateType: function(newTypeAbbr){
+    updateType: function(newType){
         // Remove calibration popover
         this.destroyPopover();
 
-        this.type = newTypeAbbr;
-        this.typePretty = this.app.utility.pinTypes[this.type];
+        this.type = newType;
+        this.typePretty = this.app.utility.defaultData.TypesPretty[this.type];
 
         // Update Subtype
-        if (newTypeAbbr == 'din'){ // din
-            this.subtypeMap = this.app.utility.dinSubtypes;                
-        } else if (newTypeAbbr == 'dout'){ // dout
-            this.subtypeMap = this.app.utility.doutSubtypes;
-        } else { // ain
-            this.subtypeMap = null;
+        if (newType == 'ain'){
             this.subtype = null;
             this.subtypePretty = null;
-        }
+        } 
 
-        // Update Default calibration
-        this.setDefaultCalibration();
+        // Set Default calibration        
+        var defaultCalibration = this.app.utility.defaultData.Types[this.type].CalibrationData;
+        for (var key in defaultCalibration){
+            if (defaultCalibration.hasOwnProperty(key)){
+                this.calibrationData[key] = defaultCalibration[key];
+            }
+        }
 
         // Update HTML Cells
         this.subtypeCell.html(this.getSubtypeSelect());
@@ -132,24 +150,12 @@ PinRow.prototype = {
     },
 
     updateCalibrationData: function(){
-        var newData = null;
-        if (this.type == 'ain'){
-            newData = {
-                MinInputValue: parseFloat($("#" + this.guid + "-MinInputValue").val()),
-                MaxInputValue: parseFloat($("#" + this.guid + "-MaxInputValue").val()),
-                CenterInputValue: parseFloat($("#" + this.guid + "-CenterInputValue").val()),
-                MinOutputValue: parseFloat($("#" + this.guid + "-MinOutputValue").val()),
-                MaxOutputValue: parseFloat($("#" + this.guid + "-MaxOutputValue").val()),
-                CenterOutputValue: parseFloat($("#" + this.guid + "-CenterOutputValue").val()),
-                DeadpanValue: parseFloat($("#" + this.guid + "-DeadpanValue").val()),
-            };
-        }else {
-            newData = {
-                TrueValue: parseFloat($("#" + this.guid + "-TrueValue").val()),
-                FalseValue: parseFloat($("#" + this.guid + "-FalseValue").val()),
-            };
+        var defaultCalibration = this.app.utility.defaultData.Types[this.type].CalibrationData;
+
+        for (var key in defaultCalibration){
+            this.calibrationData[key] = parseFloat($("#" + this.guid + "-" + key).val());
         }
-        this.calibrationData = newData;
+
         this.destroyPopover();
         this.createPopover();
     },
@@ -160,38 +166,24 @@ PinRow.prototype = {
 
     getCalibrationPopoverContent: function(){
         var htmlBuffer = [];
-        if (this.type == 'ain'){
-            for (var key in this.calibrationData){
-                if (!this.calibrationData.hasOwnProperty(key)){  // check hasOwnProperty
-                    continue;
-                }
-                htmlBuffer.push("<label>" + key + " Value: </label>");
-                htmlBuffer.push("<input type='text' ");
-                htmlBuffer.push("id='" + this.guid + "-" + key);
-                htmlBuffer.push("' value='" + this.calibrationData[key]);
-                htmlBuffer.push("' />");
-                // htmlBuffer.push("<input type='text' name='" + key + "' value='" + value + "' />");
+        for (var key in this.calibrationData){
+            if (this.calibrationData.hasOwnProperty(key)){  // check hasOwnProperty
+                    htmlBuffer.push("<label>" + key + " Value: </label>");
+                    htmlBuffer.push("<input type='text' ");
+                    htmlBuffer.push("id='" + this.guid + "-" + key);
+                    htmlBuffer.push("' value='" + this.calibrationData[key]);
+                    htmlBuffer.push("' />");
             }
-            htmlBuffer.push("<br/><button class='btn btn-primary calibration-save' data-pin-guid='" + this.guid + "'>Save</button>");
-            return htmlBuffer.join("");
-        }else {
-            htmlBuffer.push("<label for='on'>On Value: </label><br/>");
-            htmlBuffer.push("<input type='text' name='on'")
-            htmlBuffer.push(" id='" + this.guid + "-TrueValue'");
-            htmlBuffer.push(" value='" + this.calibrationData.TrueValue + "' /><br/>");
-
-            htmlBuffer.push("<label for='off'>Off Value: </label><br/>");
-            htmlBuffer.push("<input type='text' name='off'");
-            htmlBuffer.push(" id='" + this.guid + "-FalseValue'");
-            htmlBuffer.push(" value='" + this.calibrationData.FalseValue + "' /><br/>");
-
-            htmlBuffer.push("<button class='btn btn-primary calibration-save' data-pin-guid='" + this.guid + "'>Save</button>");
-            return htmlBuffer.join("");
         }
+        htmlBuffer.push("<br/><button class='btn btn-success calibration-save' data-pin-guid='" + this.guid + "'>Save</button>");
+        return htmlBuffer.join("");
     },
 
     setIOstatus: function(status){
         var statusNode = this.statusCell.find(".io-status");
+        if (statusNode.length == 0){
+            return;
+        }
         statusNode.removeClass("label-warning");
 
         if (this.type == 'ain'){
@@ -200,7 +192,7 @@ PinRow.prototype = {
         }else if (this.type == 'din'){
             statusNode.html(status);
             if (this.calibrationData != null){
-                if (this.calibrationData["TrueValue"] == status){
+                if (this.calibrationData.True == status){
                     statusNode.addClass("label-success");
                 }else {
                     statusNode.addClass("label-danger");
@@ -219,56 +211,19 @@ PinRow.prototype = {
     },
 
     getTypeSelect: function(){
-        var htmlBuffer = [];
-        htmlBuffer.push("<select class='form-control type-select'>");
-        for (var key in this.app.utility.pinTypes){
-            // check hasOwnProperty
-            if (!this.app.utility.pinTypes.hasOwnProperty(key)){
-                continue;
-            }
-
-            var curType = this.app.utility.pinTypes[key];
-            htmlBuffer.push("<option ")
-            if (curType == this.typePretty){
-                htmlBuffer.push("selected='selected'");
-            }
-            htmlBuffer.push(" value='");
-            htmlBuffer.push(key)
-            htmlBuffer.push("'>");
-            htmlBuffer.push(curType);
-            htmlBuffer.push("</option>");
+        if (this.type == null){
+            return "";
         }
-        htmlBuffer.push("</select>");
-        return htmlBuffer.join("");
+        var typesPretty = this.app.utility.defaultData.TypesPretty;
+        return this.app.utility.selectBuilder("type-select", typesPretty, this.type);
     },
 
     getSubtypeSelect: function(){
-        if (this.type == 'ain'){
-            return ""
+        if (this.type == 'ain' || this.subtype == null){
+            return "";
         }
-        var htmlBuffer = [];
-        htmlBuffer.push("<select class='form-control subtype-select'>");
-
-        for (var key in this.subtypeMap){
-            // check hasOwnProperty
-            if (!this.subtypeMap.hasOwnProperty(key)){
-                continue;
-            }
-
-            var curSubtype = this.subtypeMap[key];
-
-            htmlBuffer.push("<option ")
-            if (curSubtype == this.subtypePretty){
-                htmlBuffer.push("selected='selected'");
-            }
-            htmlBuffer.push(" value='");
-            htmlBuffer.push(key)
-            htmlBuffer.push("'>");
-            htmlBuffer.push(curSubtype);
-            htmlBuffer.push("</option>");
-        }
-        htmlBuffer.push("</select>");
-        return htmlBuffer.join("");
+        var subTypesPretty = this.app.utility.defaultData.Types[this.type].SubTypesPretty;
+        return this.app.utility.selectBuilder("subtype-select", subTypesPretty, this.subtype);
     },
 
     getNameInput: function(){

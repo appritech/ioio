@@ -29,7 +29,7 @@ Poller.prototype  = {
         var pinArray = [];
         $('.din-stat, .ain-stat').each(function(index){
             var element = $(this);
-            guid = element.parent().parent().data('guid'),
+            guid = element.parents("tr").data('guid'),
             pinObj = self.app.pinRowStore[guid];
 
             pinObjectLookup[pinObj.number] = pinObj;
@@ -50,6 +50,8 @@ Poller.prototype  = {
             dataType: "xml",
             error: function(req, status, error) { 
                 console.log("Error");
+                console.log(req);
+                console.log(status);
                 console.log(error);
             },
             success: function(data) {
