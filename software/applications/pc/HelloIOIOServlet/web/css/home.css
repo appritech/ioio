@@ -13,7 +13,7 @@ body {
  */
 
 .sub-header {
-  padding-bottom: 10px;
+  padding-bottom: 40px;
   border-bottom: 1px solid #eee;
 }
 
@@ -97,7 +97,8 @@ body {
  */ 
 
 .save-config {
-    float: right;
+    position: absolute;
+    right: 40px;
 }
 
 #ioio-table {

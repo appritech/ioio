@@ -26,7 +26,49 @@ Utility.prototype = {
         "CenterInput": 1.6976545,
         "MinOutput": -100,
         "MaxOutput": 100,
-        "CenterOutput": 0
+        "CenterOutput": 0,
+        "Deadpan": 0
+    },
+
+    defaultData: {
+        Types: {
+            "ain": {
+                PrettyPrint: "Analog In",
+                SubTypes: {},
+                CalibrationData: {
+                    "MinInput": 0,
+                    "MaxInput": 3.28676,
+                    "CenterInput": 1.6976545,
+                    "MinOutput": -100,
+                    "MaxOutput": 100,
+                    "CenterOutput": 0,
+                    "Deadpan": 0
+                }
+            },
+            "dout": {
+                PrettyPrint: "Digital Out",
+                SubTypes: {
+                    "OD": "Open-Drain",
+                    "NL": "Normal"
+                },
+                CalibrationData: {
+                    "True": 1,
+                    "False": 0
+                }
+            },
+            "din": {
+                PrettyPrint: "Digital In",
+                SubTypes: {
+                    "FL": "Float",
+                    "PD": "Pull-Down",
+                    "PU": "Pull-Up"
+                },
+                CalibrationData: {
+                    "True": 1,
+                    "False": 0
+                }
+            }
+        },
     },
 
     xmlToString: function(doc){

@@ -90,7 +90,8 @@ PinRow.prototype = {
                 CenterInputValue: (this.node.hasAttribute("CenterInputValue"))? parseFloat(this.node.getAttribute("CenterInputValue")) : 1.6976545,
                 MinOutputValue: (this.node.hasAttribute("MinOutputValue"))? parseFloat(this.node.getAttribute("MinOutputValue")) : -100.0,
                 MaxOutputValue: (this.node.hasAttribute("MaxOutputValue"))? parseFloat(this.node.getAttribute("MaxOutputValue")) : 100.0,
-                CenterOutputValue: (this.node.hasAttribute("CenterOutputValue"))? parseFloat(this.node.getAttribute("CenterOutputValue")) : 0.0
+                CenterOutputValue: (this.node.hasAttribute("CenterOutputValue"))? parseFloat(this.node.getAttribute("CenterOutputValue")) : 0.0,
+                DeadpanValue: (this.node.hasAttribute("DeadpanValue"))? parseFloat(this.node.getAttribute("DeadpanValue")) : 0.0
             }
         }else {
             this.calibrationData = {
@@ -140,6 +141,7 @@ PinRow.prototype = {
                 MinOutputValue: parseFloat($("#" + this.guid + "-MinOutputValue").val()),
                 MaxOutputValue: parseFloat($("#" + this.guid + "-MaxOutputValue").val()),
                 CenterOutputValue: parseFloat($("#" + this.guid + "-CenterOutputValue").val()),
+                DeadpanValue: parseFloat($("#" + this.guid + "-DeadpanValue").val()),
             };
         }else {
             newData = {
