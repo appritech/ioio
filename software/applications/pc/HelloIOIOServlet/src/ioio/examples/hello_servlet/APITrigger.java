@@ -29,7 +29,7 @@ public class APITrigger extends HttpServlet {
 			int pinNum = Integer.parseInt(req.getParameter("pin"));
 			
 			IOIOBackgroundService.getInstance().setOutputValue(pinNum, value);
-			System.out.println("pin: " + String.valueOf(pinNum) + "\nValue: " + String.valueOf(value));
+//			System.out.println("pin: " + String.valueOf(pinNum) + "\t\tValue: " + String.valueOf(value));
 			
 			out.write("Success");
 		}catch (Exception e){

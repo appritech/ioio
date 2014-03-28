@@ -60,7 +60,7 @@ public class FlexDigitalInput extends FlexIOBase
 		{
 			lastValue = readValue;
 			//TODO: Dispatch event on change
-			System.out.println("Din valueChanged. pinNum: " + pinNum + "\t value: " + readValue);
+//			System.out.println("Din valueChanged. pinNum: " + pinNum + "\t value: " + readValue);
 		}
 		return lastValue ? 1.0f : 0.0f;
 	}

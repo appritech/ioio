@@ -37,7 +37,7 @@ public class FlexDigitalOutput extends FlexIOBase
 			dout = ioio.openDigitalOutput(pinNum, DigitalOutput.Spec.Mode.OPEN_DRAIN, true);
 			needsInvert = true;			//Open Drain mode works backwards. True leaves pin floating (i.e. LED not on), and false pulls it to ground (i.e. LED on)
 		}
-		else if(subType.endsWith("FL"))		//Floating
+		else if(subType.endsWith("NL"))		//Floating
 		{
 			dout = ioio.openDigitalOutput(pinNum);
 		}

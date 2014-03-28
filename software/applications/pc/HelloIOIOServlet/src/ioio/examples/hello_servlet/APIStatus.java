@@ -49,7 +49,7 @@ public class APIStatus extends HttpServlet {
 	
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse response) throws IOException, ServletException {
-		System.out.println("GET: " + req.getRequestURL().toString());
+//		System.out.println("GET: " + req.getRequestURL().toString());
 		String queryString = req.getQueryString();
 		PrintWriter responseOut = response.getWriter();
 
@@ -108,8 +108,8 @@ public class APIStatus extends HttpServlet {
 			pin.setAttribute("num", String.valueOf(String.valueOf(pinNumber)));
 
 			// Get Value from IOIO Service
-//			float val = IOIOBackgroundService.getInstance().getInputValue(pinNumber);
-			float val = (i % 2 == 0)? 1.0f : 0.0f;
+			float val = IOIOBackgroundService.getInstance().getInputValue(pinNumber);
+//			float val = (i % 2 == 0)? 1.0f : 0.0f;
 			
 			pin.setAttribute("status", String.valueOf(val));
 			rootElement.appendChild(pin);

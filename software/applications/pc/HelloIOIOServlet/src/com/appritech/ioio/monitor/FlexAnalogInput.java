@@ -58,7 +58,8 @@ public class FlexAnalogInput extends FlexIOBase
 		{
 			lastValue = readValue;
 			//TODO: Dispatch event on change
-			System.out.println("Ain valueChanged. pinNum: " + pinNum + "\t value: " + readValue);
+//			if(pinNum == 44)
+//				System.out.println("Ain valueChanged. pinNum: " + pinNum + "\t value: " + readValue);
 		}
 		return lastValue;
 	}
