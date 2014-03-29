@@ -91,7 +91,7 @@ PinRow.prototype = {
     }, 
 
     createPopover: function(){
-        return $("#" + this.guid + "-popover").popover({html: true, content: this.getCalibrationPopoverContent()});
+        return $("#" + this.guid + "-popover").popover({html: true, placement: "left", content: this.getCalibrationPopoverContent()});
     },
 
     hidePopover: function(){
@@ -179,14 +179,18 @@ PinRow.prototype = {
         statusNode.removeClass("label-warning");
         
         statusNode.html(parseFloat(status).toFixed(3));
+        console.log(status, this.calibrationData.True, status == this.calibrationData.True);
+
         if (this.type == 'ain'){
             statusNode.addClass("label-success");
         }else if (this.type == 'din'){
 
             if (this.calibrationData != null){
                 if (this.calibrationData.True == status){
+                    statusNode.removeClass("label-danger");
                     statusNode.addClass("label-success");
                 }else {
+                    statusNode.removeClass("label-success");
                     statusNode.addClass("label-danger");
                 }
             }else{
