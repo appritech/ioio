@@ -31,13 +31,14 @@
       </div>
     </div>
 
+
+
     <div class="container-fluid">
-
       <div class="row">
-
         <div class="col-sm-12 col-md-12 main">
           <h1 class="page-header">Configuration Editor</h1>
-
+          <div id="notifications-box" style="display:none"></div>
+          <div id="dirty-config" class="hidden bg-warning">Configuration needs to be saved! <br> I/O Polling paused...</div>
           <div class="sub-header">
             <button class="btn btn-primary save-config" style="margin-top: -5px">Save Configuration</button>
           </div>
@@ -66,9 +67,9 @@
 </body>
 
 <!-- <script src="/js/jquery-1.11.0.min.js"></script> -->
-<script src="/js/jquery-2.1.0.min.js"></script>
-<script src="/js/bootstrap.min.js"></script>
-<script src="/js/bootstrap-switch.min.js"></script>
+<script src="/js/dependencies/jquery-2.1.0.min.js"></script>
+<script src="/js/dependencies/bootstrap.min.js"></script>
+<script src="/js/dependencies/jquery.powertimer.js"></script>
 <script src="/js/utility.js"></script>
 <script src="/js/pinrow.js"></script>
 <script src="/js/poller.js"></script>

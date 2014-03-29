@@ -23,7 +23,6 @@ Poller.prototype  = {
 
     // get AJAX data + respond to it
     getData: function(){
-        console.log("Polled");
         var self = this;
         var pinObjectLookup = {};
         var pinArray = [];

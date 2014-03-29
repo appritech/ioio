@@ -96,6 +96,33 @@ IOIOApp.prototype = {
         $('tbody').on("change", "input[name='trigger-pin']", {"app": self}, self.triggerPinEvent);
         $('tbody').on("click", "button.calibration-save", {"app": self}, self.collectCalibrationEvent);
         $('.save-config').on("click", function(){ self.saveConfigEvent() });
+        $("#notifications-box").on("notify", self.notificationEvent);
+
+    },
+
+    notificationEvent: function(event, message, stateClass){
+        var notificationBox = $('#notifications-box');
+        var div = $('<div class="notify"></div>');
+        
+        if (stateClass){
+            div.addClass(stateClass);
+        } else {
+            div.addClass("bg-warning");
+        }
+
+        div.append(message);
+        notificationBox.append(div);
+        notificationBox.fadeIn();
+        notificationBox.powerTimer({
+            name: 'push-notification',
+            delay: 5000,
+            func: function() {
+                var notifyBox = $("#notifications-box");
+                notifyBox.html("");
+                notifyBox.fadeOut();
+            },
+        });
+
     },
 
     collectCalibrationEvent: function(event){
@@ -108,7 +135,8 @@ IOIOApp.prototype = {
 
     updateDynamicInputsEvent: function(event){
         event.data.app.dirtyConfig = true;
-        
+        $("#dirty-config").removeClass("hidden");
+
         var guid = $(this).parent().parent().data('guid'),
             newTypeAbbr = $(this).val();
 
@@ -168,13 +196,14 @@ IOIOApp.prototype = {
             data: xmlDoc,
             processData: false,
             error: function(req, status, error) { 
-                console.log("Error");
+                $("#notifications-box").trigger("notify", ["Error Saving XML!", "bg-error"])
                 console.log(error);
                 console.log(status);
                 console.log(req);
             },
             success: function() {
-                console.log("XML Saved");
+                $("#dirty-config").addClass("hidden");
+                $("#notifications-box").trigger("notify", ["XML Saved!", "bg-success"])
                 self.dirtyConfig = false;
                 self.poller.restart();
             }
