@@ -48,10 +48,7 @@ Poller.prototype  = {
             processData: false,
             dataType: "xml",
             error: function(req, status, error) { 
-                console.log("Error");
-                console.log(req);
-                console.log(status);
-                console.log(error);
+                $("#notifications-box").trigger("notify", ["Error Polling server!", "bg-error"])
             },
             success: function(data) {
                 $(data).find('pin').each(function(index, pin){
@@ -59,7 +56,6 @@ Poller.prototype  = {
                     var pinStatus = pin.getAttribute("status");
 
                     pinObjectLookup[pinNumber].setIOstatus(pinStatus);
-
                 });
             }
         });

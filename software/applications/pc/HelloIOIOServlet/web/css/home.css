@@ -114,6 +114,7 @@ body {
     top: 55px;
     right: 5px;
     font-size: 1.3em;
+    z-index: 10;
 }
 
 #dirty-config {
@@ -132,6 +133,7 @@ body {
     padding: 10px;
     border: 1px solid #cccccc;
     border-radius: 5px;
+    margin-top: 5px;
 }
 
 .hidden {
