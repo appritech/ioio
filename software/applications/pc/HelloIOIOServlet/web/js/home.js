@@ -17,6 +17,7 @@ IOIOApp.prototype = {
         this.getConfigXML();
         this.poller = new Poller(this);
         this.pinRowStore = {};
+        this.popoverStack = [];
     },
 
     getConfigXML: function() {
@@ -66,7 +67,7 @@ IOIOApp.prototype = {
             strBuffer.push("</td>");
 
             // Pin Calibration Cell
-            strBuffer.push("<td>");
+            strBuffer.push("<td class='calibration-cell'>");
             strBuffer.push(pinObject.getCalibrationButton());
             strBuffer.push("</td>");
 
@@ -84,10 +85,19 @@ IOIOApp.prototype = {
             self.pinRowStore[guid] = pinObject;
             pinObject.setRowElement(row);
             tableBody.append(row);
-            pinObject.createPopover();
+            var pop = pinObject.createPopover();
+            pop.on("show.bs.popover", {"app": self, "current": pop.selector}, self.showPopoverEvent);
+            self.popoverStack.push(pop);
         });
-        
-        
+    },
+
+    closeOtherPopovers: function(current){
+        for (var i = 0; i < this.popoverStack.length; i++){
+            var pop = this.popoverStack[i];
+            if (pop.selector != current){
+                pop.popover('hide');
+            }
+        }
     },
 
     attachHandlers: function(){
@@ -97,7 +107,20 @@ IOIOApp.prototype = {
         $('tbody').on("click", "button.calibration-save", {"app": self}, self.collectCalibrationEvent);
         $('.save-config').on("click", {"app": self}, self.saveConfigEvent);
         $("#notifications-box").on("notify", self.notificationEvent);
+        $("#main-app").on("click.close-popovers", {"app": self}, self.closePopoversEvent);
+        $("#ioio-table").on("click.stop-propagation", ".calibration-cell", {app: self}, self.stopPropagationEvent);
+    },
 
+    stopPropagationEvent: function(event){
+        event.stopPropagation();
+    },
+
+    closePopoversEvent: function(event){
+        event.data.app.closeOtherPopovers();
+    },
+
+    showPopoverEvent: function(event){
+        event.data.app.closeOtherPopovers(event.data.current);
     },
 
     notificationEvent: function(event, message, stateClass){
@@ -115,11 +138,12 @@ IOIOApp.prototype = {
         notificationBox.fadeIn();
         notificationBox.powerTimer({
             name: 'push-notification',
-            delay: 5000,
+            delay: 4000,
             func: function() {
                 var notifyBox = $("#notifications-box");
-                notifyBox.html("");
-                notifyBox.fadeOut();
+                notifyBox.fadeOut(400, "swing", function(){
+                    $(this).html("");
+                });
             },
         });
 
@@ -151,7 +175,7 @@ IOIOApp.prototype = {
 
         // Send state from calibration data
         $.post("/api/trigger", {"pin": pinObject.number, "state": state }, function( data){
-            console.log(data);
+            $("#notifications-box").trigger("notify", [data, "bg-success"])
         });
         // For Bootstrap Switch
         // var $element = $(data.el);
