@@ -221,7 +221,7 @@ IOIOApp.prototype = {
             data: xmlDoc,
             processData: false,
             error: function(req, status, error) { 
-                $("#notifications-box").trigger("notify", ["Error Saving XML!", "bg-error"])
+                $("#notifications-box").trigger("notify", ["Error Saving XML!", "bg-danger"])
                 console.log(error);
                 console.log(status);
                 console.log(req);

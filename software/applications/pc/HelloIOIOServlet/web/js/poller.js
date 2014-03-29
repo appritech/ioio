@@ -48,7 +48,12 @@ Poller.prototype  = {
             processData: false,
             dataType: "xml",
             error: function(req, status, error) { 
-                $("#notifications-box").trigger("notify", ["Error Polling server!", "bg-error"])
+                if ($("#notifications-box .server-error-notification").length > 0){
+                    return;
+                }else {
+                    $("#notifications-box").trigger("notify", ["Error Polling server!", "bg-danger server-error-notification"])
+                }
+                
             },
             success: function(data) {
                 $(data).find('pin').each(function(index, pin){
