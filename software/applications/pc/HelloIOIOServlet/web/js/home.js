@@ -95,7 +95,7 @@ IOIOApp.prototype = {
         $('tbody').on("change", ".type-select", { "app": self }, self.updateDynamicInputsEvent);
         $('tbody').on("change", "input[name='trigger-pin']", {"app": self}, self.triggerPinEvent);
         $('tbody').on("click", "button.calibration-save", {"app": self}, self.collectCalibrationEvent);
-        $('.save-config').on("click", function(){ self.saveConfigEvent() });
+        $('.save-config').on("click", {"app": self}, self.saveConfigEvent);
         $("#notifications-box").on("notify", self.notificationEvent);
 
     },
@@ -160,9 +160,10 @@ IOIOApp.prototype = {
         // });
     },
 
-    saveConfigEvent: function(){
-        var self = this;
+    saveConfigEvent: function(event){
+        var self = event.data.app;
         var xmlDoc = document.implementation.createDocument(null, "ioio", null);
+        var xmlMapping = self.utility.defaultData.CalibrationXMLmapping;
 
         // Loop through config table rows, generate XML doc, POST to server
         $('#ioio-table-body tr').each(function(index){
@@ -182,8 +183,8 @@ IOIOApp.prototype = {
 
             // Set Calibration Data
             for (var key in pinObject.calibrationData){
-                if (pinObject.calibrationData.hasOwnProperty(key)){  // check hasOwnProperty
-                    pin.setAttribute(key + "Value", pinObject.calibrationData[key]);                    
+                if (pinObject.calibrationData.hasOwnProperty(key)){
+                    pin.setAttribute(xmlMapping[key], pinObject.calibrationData[key]);                    
                 }
             }
             xmlDoc.documentElement.appendChild(pin);

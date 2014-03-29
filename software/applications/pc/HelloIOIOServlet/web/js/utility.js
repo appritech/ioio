@@ -16,8 +16,8 @@ Utility.prototype = {
                     "MinOutput": -100,
                     "MaxOutput": 100,
                     "CenterOutput": 0,
-                    "Deadpan": 0
-                }
+                    "Deadband": 0
+                },
             },
             dout: {
                 PrettyPrint: "Digital Out",
@@ -43,10 +43,23 @@ Utility.prototype = {
                 }
             }
         },
+
         TypesPretty: {
             ain: "Analog In",
             dout: "Digital Out",
             din: "Digital In"
+        },
+
+        CalibrationXMLmapping: {
+            True: "TrueValue",
+            False: "FalseValue",
+            MinInput: "MinInputValue",
+            MaxInput: "MaxInputValue",
+            CenterInput: "CenterInputValue",
+            MinOutput: "MinOutputValue",
+            MaxOutput: "MaxOutputValue",
+            CenterOutput: "CenterOutputValue",
+            Deadband: "DeadbandValue"
         }
     },
 

@@ -21,7 +21,7 @@ PinRow.prototype = {
             this.type = this.node.getAttribute("type");
             this.typePretty = this.app.utility.defaultData.Types[this.type];
             this.subtype = (this.node.hasAttribute("subtype"))? this.node.getAttribute("subtype"): null;
-            this.calibrationData = null;
+            this.calibrationData = {}
 
             try {
                 if (this.subtype != null){
@@ -100,21 +100,13 @@ PinRow.prototype = {
     
     parseCalibrationData: function(){
         var defaultCalibration = this.app.utility.defaultData.Types[this.type].CalibrationData;
-        if (this.type == 'ain'){
-            // Parse Node for calibration Data and set Default for missing values
-            this.calibrationData = {
-                MinInput: (this.node.hasAttribute("MinInputValue"))? parseFloat(this.node.getAttribute("MinInputValue")) : defaultCalibration['MinInput'],
-                MaxInput: (this.node.hasAttribute("MaxInputValue"))? parseFloat(this.node.getAttribute("MaxInputValue")) : defaultCalibration['MaxInput'],
-                CenterInput: (this.node.hasAttribute("CenterInputValue"))? parseFloat(this.node.getAttribute("CenterInputValue")) : defaultCalibration['CenterInput'],
-                MinOutput: (this.node.hasAttribute("MinOutputValue"))? parseFloat(this.node.getAttribute("MinOutputValue")) : defaultCalibration['MinOutput'],
-                MaxOutput: (this.node.hasAttribute("MaxOutputValue"))? parseFloat(this.node.getAttribute("MaxOutputValue")) : defaultCalibration['MaxOutput'],
-                CenterOutput: (this.node.hasAttribute("CenterOutputValue"))? parseFloat(this.node.getAttribute("CenterOutputValue")) : defaultCalibration['CenterOutput'],
-                Deadpan: (this.node.hasAttribute("DeadpanValue"))? parseFloat(this.node.getAttribute("DeadpanValue")) : defaultCalibration['Deadpan']
-            }
-        }else {
-            this.calibrationData = {
-                True: (this.node.hasAttribute("TrueValue"))? parseFloat(this.node.getAttribute("TrueValue")) : defaultCalibration['True'],
-                False: (this.node.hasAttribute("FalseValue"))? parseFloat(this.node.getAttribute("FalseValue")) : defaultCalibration['False']
+        var xmlValue = null;
+        var xmlMapping = this.app.utility.defaultData.CalibrationXMLmapping;
+
+        for (var key in defaultCalibration){
+            if (defaultCalibration.hasOwnProperty(key)){
+                xmlValue = xmlMapping[key];
+                this.calibrationData[key] = (this.node.hasAttribute(xmlValue))? parseFloat(this.node.getAttribute(xmlValue)) : defaultCalibration[key];
             }
         }
     },
