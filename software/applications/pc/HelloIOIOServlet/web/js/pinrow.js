@@ -91,7 +91,7 @@ PinRow.prototype = {
     }, 
 
     createPopover: function(){
-        $("#" + this.guid + "-popover").popover({html: true, content: this.getCalibrationPopoverContent()});
+        return $("#" + this.guid + "-popover").popover({html: true, content: this.getCalibrationPopoverContent()});
     },
 
     hidePopover: function(){
@@ -177,12 +177,12 @@ PinRow.prototype = {
             return;
         }
         statusNode.removeClass("label-warning");
-
+        
+        statusNode.html(parseFloat(status).toFixed(3));
         if (this.type == 'ain'){
             statusNode.addClass("label-success");
-            statusNode.html(status);
         }else if (this.type == 'din'){
-            statusNode.html(status);
+
             if (this.calibrationData != null){
                 if (this.calibrationData.True == status){
                     statusNode.addClass("label-success");
