@@ -124,6 +124,9 @@ body {
     border-radius: 5px;
 }
 
+#main-footer {
+    height: 150px;
+}
 
 /*
  * Helper Functions
