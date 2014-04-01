@@ -15,7 +15,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -53,11 +52,16 @@ public class APIStatus extends HttpServlet {
 		String queryString = req.getQueryString();
 		PrintWriter responseOut = response.getWriter();
 
-		if (queryString == null || queryString.isEmpty()){
-			return;
-		}
+//		if (queryString == null || queryString.isEmpty()){
+//			return;
+//		}
 		
-		List<Integer> pins = parsePinsFromQueryString(queryString);
+		List<Integer> pins;
+		
+		if(queryString == null || queryString.isEmpty())
+			pins = getAllPins();
+		else
+			pins = parsePinsFromQueryString(queryString);
 
 		response.setContentType("text/xml;charset=UTF-8");
 		
@@ -86,6 +90,16 @@ public class APIStatus extends HttpServlet {
 	}
 
 	
+	private List<Integer> getAllPins() {
+		LinkedList<Integer> ret = new LinkedList<Integer>();
+		
+		for(int i = 1; i <= 46; i++)
+			ret.add(i);
+		
+		return ret;
+	}
+
+
 	/**
 	 * Build XML Document from list of pins
 	 * @param pins
