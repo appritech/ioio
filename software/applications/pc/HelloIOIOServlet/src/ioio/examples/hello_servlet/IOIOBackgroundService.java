@@ -84,6 +84,19 @@ public class IOIOBackgroundService implements IOIOLooperProvider {
 	public void destroy() {
 		serviceRunning = false;
 	}
+	
+	public void updateIOIOLooper() {
+		try {
+			if (looper != null) {
+				DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+				Document doc = docBuilder.parse(new File(CONFIG_FILENAME));
+				looper.flagUpdateState(doc);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Copied from ConfigIOIOServlet.java
@@ -91,10 +104,8 @@ public class IOIOBackgroundService implements IOIOLooperProvider {
 	public IOIOLooper createIOIOLooper(String connectionType, Object extra) {
 		try {
 			if (looper == null) {
-				DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory
-						.newInstance();
-				DocumentBuilder docBuilder = docBuilderFactory
-						.newDocumentBuilder();
+				DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
 				Document doc = docBuilder.parse(new File(CONFIG_FILENAME));
 				looper = new FlexIOIOLooper(doc);
 			}

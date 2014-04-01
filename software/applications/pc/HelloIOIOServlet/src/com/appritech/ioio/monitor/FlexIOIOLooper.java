@@ -18,7 +18,13 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 		updateIOIOState(doc);
 	}
 	
-	public void updateIOIOState(Document doc)
+	private Document updateDoc = null;
+	
+	public void flagUpdateState(Document doc) {
+		updateDoc = doc;
+	}
+	
+	private void updateIOIOState(Document doc)
 	{
 		for(FlexIOBase iter : ioList) {
 			iter.close();
@@ -76,8 +82,10 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 	@Override
 	protected void setup() throws ConnectionLostException, InterruptedException 
 	{
-		led = new FlexDigitalOutput(IOIO.LED_PIN, null);
-		led.setup(ioio_);
+		if(led == null) {
+			led = new FlexDigitalOutput(IOIO.LED_PIN, null);
+			led.setup(ioio_);
+		}
 		for (FlexIOBase iter : ioList)
 		{
 			iter.setup(ioio_);
@@ -87,6 +95,11 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 	@Override
 	public void loop() throws ConnectionLostException, InterruptedException 
 	{
+		if(updateDoc != null) {
+			updateIOIOState(updateDoc);
+			setup();
+			updateDoc = null;
+		}
 		led.update(ledVal);
 		for (FlexIOBase iter : ioList)
 		{

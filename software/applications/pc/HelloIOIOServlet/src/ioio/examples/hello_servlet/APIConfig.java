@@ -99,6 +99,8 @@ public class APIConfig extends HttpServlet {
 //			    writer.write(System.lineSeparator());
 //			}
 //			writer.close();	
+			
+			IOIOBackgroundService.getInstance().updateIOIOLooper();
 	        
 		
 		} catch (SAXException e) {
