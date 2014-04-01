@@ -31,6 +31,9 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 		}
 		ioList.clear();
 		
+		if(doc == null)
+			return;
+		
 		NodeList listOfPins = doc.getElementsByTagName("pin");
         int numPins = listOfPins.getLength();
         System.out.println("Total no of pins : " + numPins);

@@ -111,29 +111,30 @@ public class IOIOBackgroundService implements IOIOLooperProvider {
 			}
 			return looper;
 		} catch (Exception e) {
-			e.printStackTrace();
+			looper = new FlexIOIOLooper(null);
+			return looper;
 		}
 		
 		// This is just backup plan. LED will flash on/off which tells us an
 		// exception was thrown and it didn't confingure itself properly.
-		return new BaseIOIOLooper() {
-			private DigitalOutput led_;
-			private Boolean ledOn;
-
-			@Override
-			protected void setup() throws ConnectionLostException,
-					InterruptedException {
-				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN, true);
-			}
-
-			@Override
-			public void loop() throws ConnectionLostException,
-					InterruptedException {
-				ledOn = !ledOn;
-				led_.write(!ledOn);
-				Thread.sleep(300);
-			}
-		};
+//		return new BaseIOIOLooper() {
+//			private DigitalOutput led_;
+//			private Boolean ledOn;
+//
+//			@Override
+//			protected void setup() throws ConnectionLostException,
+//					InterruptedException {
+//				led_ = ioio_.openDigitalOutput(IOIO.LED_PIN, true);
+//			}
+//
+//			@Override
+//			public void loop() throws ConnectionLostException,
+//					InterruptedException {
+////				ledOn = !ledOn;
+//				led_.write(!ledOn);
+//				Thread.sleep(300);
+//			}
+//		};
 	}
 	
 	/** Sets the current status of an output pin. For digital outputs, value of 0.0f to turn off, and 1.0f to turn on */
