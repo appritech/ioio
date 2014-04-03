@@ -8,10 +8,14 @@ import ioio.lib.util.IOIOLooper;
 import ioio.lib.util.IOIOLooperProvider;
 import ioio.lib.util.IOIOConnectionManager.Thread;
 import ioio.lib.util.pc.IOIOPcApplicationHelper;
+
 import java.io.File;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.Document;
+
 import com.appritech.ioio.monitor.FlexIOIOLooper;
 
 /**
@@ -148,5 +152,24 @@ public class IOIOBackgroundService implements IOIOLooperProvider {
 		if(looper != null)
 			return looper.getInputValue(pinNum);
 		return 0.0f;
+	}
+	
+	/** Returns the current status of an input pin. For digital inputs, value will be 0.0f if off(False), and 1.0f if on(True) */
+	public float getInputValueCalibrated(int pinNum) {
+		if(looper != null)
+			return looper.getInputValueCalibrated(pinNum);
+		return 0.0f;
+	}
+	
+	public String getType(int pinNum) {
+		if(looper != null)
+			return looper.getType(pinNum);
+		return "";
+	}
+
+	public String getName(int pinNum) {
+		if(looper != null)
+			return looper.getName(pinNum);
+		return "";
 	}
 }

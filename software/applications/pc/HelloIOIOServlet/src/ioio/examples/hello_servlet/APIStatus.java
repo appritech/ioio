@@ -127,6 +127,9 @@ public class APIStatus extends HttpServlet {
 			
 			pin.setAttribute("status", String.valueOf(val));
 			rootElement.appendChild(pin);
+			pin.setAttribute("name", IOIOBackgroundService.getInstance().getName(pinNumber));
+			pin.setAttribute("type", IOIOBackgroundService.getInstance().getType(pinNumber));
+			pin.setAttribute("calibrated", String.valueOf(IOIOBackgroundService.getInstance().getInputValueCalibrated(pinNumber)));
 		}
 		
 		return doc;

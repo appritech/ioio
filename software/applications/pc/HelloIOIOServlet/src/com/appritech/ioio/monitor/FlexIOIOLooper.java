@@ -42,7 +42,10 @@ public class FlexIOIOLooper extends BaseIOIOLooper
         	Element iter = (Element) listOfPins.item(i);
         	if(iter != null) {
         		int pinNum = Integer.parseInt(iter.getAttribute("num"));
-        		switch(iter.getAttribute("type")) {
+        		String type = iter.getAttribute("type");
+        		types[pinNum] = type;
+        		names[pinNum] = iter.getAttribute("name");
+        		switch(type) {
         		case "din":
         			ioList.add(new FlexDigitalInput(pinNum, iter));
         			break;
@@ -66,6 +69,8 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 	private float[] outputValues = new float[49];
 	private float[] inputValues = new float[49];
 	private float[] inputValuesCalibrated = new float[49];
+	private String[] types = new String[49];
+	private String[] names = new String[49];
 	
 	/** Sets the current status of an output pin. For digital outputs, value of 0.0f to turn off, and 1.0f to turn on */
 	public void setOutputValue(int pinNum, float val) {
@@ -123,6 +128,14 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 
 	public void setLedVal(float ledVal) {
 		this.ledVal = ledVal;
+	}
+
+	public String getType(int pinNum) {
+		return types[pinNum];
+	}
+
+	public String getName(int pinNum) {
+		return names[pinNum];
 	}
 
 }
