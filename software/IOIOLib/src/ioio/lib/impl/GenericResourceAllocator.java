@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2013 Ytai Ben-Tsvi. All rights reserved.
  *  
  * 
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -26,15 +26,53 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
  */
-package ioio.lib.spi;
+package ioio.lib.impl;
 
-import java.util.Collection;
+import ioio.lib.api.exception.OutOfResourceException;
+import ioio.lib.impl.ResourceManager.Resource;
 
-/**
- * Implementing class must have a default constructor. The default constructor
- * must throw a NoRuntimeSupportException in case the required libraries for
- * implementing the connections are not available in run-time.
- */
-public interface IOIOConnectionBootstrap {
-	public void getFactories(Collection<IOIOConnectionFactory> result);
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+class GenericResourceAllocator implements ResourceManager.ResourceAllocator {
+	private final List<Integer> available_;
+	private final Set<Integer> allocated_;
+
+	public GenericResourceAllocator(int offset, int count) {
+		available_ = new ArrayList<Integer>(count);
+		allocated_ = new HashSet<Integer>(count);
+		for (int i = 0; i < count; i++) {
+			available_.add(i + offset);
+		}
+	}
+
+	public GenericResourceAllocator(int ids[]) {
+		available_ = new ArrayList<Integer>(ids.length);
+		allocated_ = new HashSet<Integer>(ids.length);
+		for (int i = 0; i < ids.length; i++) {
+			available_.add(ids[i]);
+		}
+	}
+
+	@Override
+	public synchronized void alloc(Resource r) {
+		if (available_.isEmpty()) {
+			throw new OutOfResourceException(
+					"No more resources of the requested type: " + r.type);
+		}
+		r.id = available_.remove(available_.size() - 1);
+		allocated_.add(r.id);
+	}
+
+	@Override
+	public synchronized void free(Resource r) {
+		if (!allocated_.contains(r.id)) {
+			throw new IllegalArgumentException("Resource " + r
+					+ " not yet allocated");
+		}
+		available_.add(r.id);
+		allocated_.remove(r.id);
+	}
 }

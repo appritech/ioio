@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 Ytai Ben-Tsvi. All rights reserved.
+ * Copyright 2013 Ytai Ben-Tsvi. All rights reserved.
  *  
  * 
  * Redistribution and use in source and binary forms, with or without modification, are
@@ -26,15 +26,36 @@
  * authors and should not be interpreted as representing official policies, either expressed
  * or implied.
  */
-package ioio.lib.spi;
+package ioio.lib.impl;
 
-import java.util.Collection;
+import ioio.lib.impl.ResourceManager.Resource;
 
-/**
- * Implementing class must have a default constructor. The default constructor
- * must throw a NoRuntimeSupportException in case the required libraries for
- * implementing the connections are not available in run-time.
- */
-public interface IOIOConnectionBootstrap {
-	public void getFactories(Collection<IOIOConnectionFactory> result);
+class SpecificResourceAllocator implements ResourceManager.ResourceAllocator {
+	private final boolean[] claimed_;
+	private final int offset_;
+
+	public SpecificResourceAllocator(int offset, int count) {
+		offset_ = offset;
+		claimed_ = new boolean[count];
+	}
+
+	@Override
+	public synchronized void alloc(Resource r) {
+		try {
+			if (claimed_[r.id - offset_]) {
+				throw new IllegalArgumentException("Resource already claimed: " + r);
+			}
+			claimed_[r.id - offset_] = true;
+		} catch (IndexOutOfBoundsException e) {
+			throw new IllegalArgumentException("Resource doesn't exist: " + r);
+		}
+	}
+
+	@Override
+	public synchronized void free(Resource r) {
+		if (!claimed_[r.id - offset_]) {
+			throw new IllegalArgumentException("Resource not claimed: " + r);
+		}
+		claimed_[r.id - offset_] = false;
+	}
 }
