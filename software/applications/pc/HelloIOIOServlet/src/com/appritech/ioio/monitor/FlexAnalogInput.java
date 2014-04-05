@@ -36,6 +36,19 @@ public class FlexAnalogInput extends FlexIOBase
 		ain = ioio.openAnalogInput(pinNum);
 		if(subType.endsWith("Invert"))
 			needsInvert = true;
+		
+		try {
+			minInput = Float.parseFloat(xmlElement.getAttribute("MinInputValue"));
+			centerInput = Float.parseFloat(xmlElement.getAttribute("CenterInputValue"));
+			maxInput = Float.parseFloat(xmlElement.getAttribute("MaxInputValue"));
+			minOutput = Float.parseFloat(xmlElement.getAttribute("MinOutputValue"));
+			centerOutput = Float.parseFloat(xmlElement.getAttribute("CenterOutputValue"));
+			maxOutput = Float.parseFloat(xmlElement.getAttribute("MaxOutputValue"));
+			deadband = Float.parseFloat(xmlElement.getAttribute("DeadbandValue"));
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
