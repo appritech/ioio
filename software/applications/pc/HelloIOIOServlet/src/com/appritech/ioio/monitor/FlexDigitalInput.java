@@ -13,13 +13,14 @@ public class FlexDigitalInput extends FlexIOBase
 		super(pinNum);
 		this.xmlElement = xml;
 		this.pinNum = pinNum;
-		eventName = Integer.toString(pinNum);
 	}
 	private Element xmlElement;
 	private DigitalInput din;
 	private Boolean needsInvert = false;
 	public Boolean lastValue = false;
-	private String eventName;
+	
+	private float trueValue = 1.0f;
+	private float falseValue = 0.0f;
 	
 	@Override
 	public void setup(IOIO ioio) throws ConnectionLostException
@@ -37,6 +38,26 @@ public class FlexDigitalInput extends FlexIOBase
 		else if(subType.endsWith("PD"))
 		{
 			din = ioio.openDigitalInput(pinNum, DigitalInput.Spec.Mode.PULL_DOWN);
+		}
+		
+		String trueVal = xmlElement.getAttribute("TrueValue");
+		if(trueVal != null) {
+			try {
+				trueValue = Float.parseFloat(trueVal);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		String falseVal = xmlElement.getAttribute("TrueValue");
+		if(falseVal != null) {
+			try {
+				falseValue = Float.parseFloat(falseVal);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -62,11 +83,11 @@ public class FlexDigitalInput extends FlexIOBase
 			//TODO: Dispatch event on change
 //			System.out.println("Din valueChanged. pinNum: " + pinNum + "\t value: " + readValue);
 		}
-		return lastValue ? 1.0f : 0.0f;
+		return lastValue ? trueValue : falseValue;
 	}
 	
 	@Override
 	public float getCalibratedValue() {
-		return lastValue ? 1.0f : 0.0f;
+		return lastValue ? trueValue : falseValue;
 	}
 }
