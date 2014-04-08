@@ -26,10 +26,20 @@ public class APITrigger extends HttpServlet {
 
 		try {
 			float value = Float.parseFloat(req.getParameter("state"));
-			int pinNum = Integer.parseInt(req.getParameter("pin"));
-			
-			IOIOBackgroundService.getInstance().setOutputValue(pinNum, value);			
-			out.write("Successfully triggered Pin: " + String.valueOf(pinNum) + " with Value: " + String.valueOf(value));
+			String pin = req.getParameter("pin");
+			if(pin != null) {
+				int pinNum = Integer.parseInt(pin);
+				
+				IOIOBackgroundService.getInstance().setOutputValue(pinNum, value);			
+				out.write("Successfully triggered Pin: " + String.valueOf(pinNum) + " with Value: " + String.valueOf(value));
+			}
+			else {
+				String name = req.getParameter("name");
+				if(name != null) {
+					IOIOBackgroundService.getInstance().setOutputValueByName(name, value);			
+					out.write("Success");
+				}
+			}
 		}catch (Exception e){
 			//TODO add better error handling
 			out.write("Server Error");

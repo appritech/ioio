@@ -20,6 +20,7 @@ public class FlexDigitalOutput extends FlexIOBase
 	private float lastValue = -1.0f;
 	@SuppressWarnings("unused")
 	private String eventName;
+	private float trueValue = 1.0f;
 	
 	@Override
 	public void setup(IOIO ioio) throws ConnectionLostException
@@ -41,6 +42,16 @@ public class FlexDigitalOutput extends FlexIOBase
 		{
 			dout = ioio.openDigitalOutput(pinNum);
 		}
+		
+		String trueVal = xmlElement.getAttribute("TrueValue");
+		if(trueVal != null) {
+			try {
+				trueValue = Float.parseFloat(trueVal);
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@Override
@@ -58,7 +69,8 @@ public class FlexDigitalOutput extends FlexIOBase
 		if(val != lastValue)
 		{
 			lastValue = val;
-			Boolean output = val > 0.5f;
+			float difference = val - trueValue;
+			Boolean output = difference < 0.1f && difference > -0.1f;		//Basically Math.abs(difference) < 0.1
 			if(needsInvert)
 				output = !output;
 			

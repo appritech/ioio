@@ -147,6 +147,11 @@ public class IOIOBackgroundService implements IOIOLooperProvider {
 			looper.setOutputValue(pinNum, val);
 	}
 	
+	public void setOutputValueByName(String name, float val) {
+		if(looper != null)
+			looper.setOutputValueByName(name, val);
+	}
+	
 	/** Returns the current status of an input pin. For digital inputs, value will be 0.0f if off(False), and 1.0f if on(True) */
 	public float getInputValue(int pinNum) {
 		if(looper != null)

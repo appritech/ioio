@@ -1,6 +1,8 @@
 package com.appritech.ioio.monitor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -30,6 +32,7 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 			iter.close();
 		}
 		ioList.clear();
+		nameMap.clear();
 		
 		if(doc == null)
 			return;
@@ -44,7 +47,13 @@ public class FlexIOIOLooper extends BaseIOIOLooper
         		int pinNum = Integer.parseInt(iter.getAttribute("num"));
         		String type = iter.getAttribute("type");
         		types[pinNum] = type;
-        		names[pinNum] = iter.getAttribute("name");
+        		String name = iter.getAttribute("name");
+        		names[pinNum] = name;
+        		
+        		if(!nameMap.containsKey(name))
+        			nameMap.put(name, new LinkedList<Integer>());
+        		nameMap.get(name).add(pinNum);
+        		
         		switch(type) {
         		case "din":
         			ioList.add(new FlexDigitalInput(pinNum, iter));
@@ -71,10 +80,19 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 	private float[] inputValuesCalibrated = new float[49];
 	private String[] types = new String[49];
 	private String[] names = new String[49];
+	private HashMap<String, LinkedList<Integer>> nameMap = new HashMap<String, LinkedList<Integer>>();
 	
 	/** Sets the current status of an output pin. For digital outputs, value of 0.0f to turn off, and 1.0f to turn on */
 	public void setOutputValue(int pinNum, float val) {
 		outputValues[pinNum] = val;
+	}
+	
+	public void setOutputValueByName(String name, float val) {
+		if(nameMap.containsKey(name)) {
+			for(int i : nameMap.get(name))
+				outputValues[i] = val;
+		}
+			
 	}
 	
 	/** Returns the current status of an input pin. For digital inputs, value will be 0.0f if off(False), and 1.0f if on(True) */
