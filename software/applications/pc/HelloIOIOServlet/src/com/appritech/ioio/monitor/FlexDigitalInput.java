@@ -50,7 +50,7 @@ public class FlexDigitalInput extends FlexIOBase
 			}
 		}
 		
-		String falseVal = xmlElement.getAttribute("TrueValue");
+		String falseVal = xmlElement.getAttribute("FalseValue");
 		if(falseVal != null) {
 			try {
 				falseValue = Float.parseFloat(falseVal);
