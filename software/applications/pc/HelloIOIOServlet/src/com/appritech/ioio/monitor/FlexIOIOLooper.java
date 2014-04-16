@@ -3,10 +3,14 @@ package com.appritech.ioio.monitor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import ioio.lib.api.IOIO;
 import ioio.lib.api.exception.ConnectionLostException;
@@ -81,6 +85,9 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 	private String[] types = new String[49];
 	private String[] names = new String[49];
 	private HashMap<String, LinkedList<Integer>> nameMap = new HashMap<String, LinkedList<Integer>>();
+	private final Cache<Integer, Float> digitalInputMap = CacheBuilder.newBuilder().concurrencyLevel(1).expireAfterWrite(10, TimeUnit.SECONDS).build();
+	// Digital Inputs do have calibration in cases like 4-position switches, etc...
+	private final Cache<Integer, Float> digitalCalibratedInputMap = CacheBuilder.newBuilder().concurrencyLevel(1).expireAfterWrite(10, TimeUnit.SECONDS).build();
 	
 	/** Sets the current status of an output pin. For digital outputs, value of 0.0f to turn off, and 1.0f to turn on */
 	public void setOutputValue(int pinNum, float val) {
@@ -97,11 +104,23 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 	
 	/** Returns the current status of an input pin. For digital inputs, value will be 0.0f if off(False), and 1.0f if on(True) */
 	public float getInputValue(int pinNum) {
+		
+		Float overrideValue = digitalInputMap.getIfPresent(pinNum);			//This will only be populated for digital inputs
+		if(overrideValue != null) {
+			digitalInputMap.invalidate(pinNum);				//Only get it once
+			return overrideValue;
+		}
+		
 		return inputValues[pinNum];
 	}
 	
 	/** Returns the calibrated value from an input pin. For digital inputs, value will be 0.0f if off(False), and 1.0f if on(True) */
 	public float getInputValueCalibrated(int pinNum) {
+		Float overrideValue = digitalCalibratedInputMap.getIfPresent(pinNum);			//This will only be populated for digital inputs
+		if(overrideValue != null) {
+			digitalCalibratedInputMap.invalidate(pinNum);				//Only get it once
+			return overrideValue;
+		}
 		return inputValuesCalibrated[pinNum];
 	}
 	
@@ -129,8 +148,29 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 		led.update(ledVal);
 		for (FlexIOBase iter : ioList)
 		{
-			inputValues[iter.pinNum] = iter.update(outputValues[iter.pinNum]);
-			inputValuesCalibrated[iter.pinNum] = iter.getCalibratedValue(); 
+			float newValue = iter.update(outputValues[iter.pinNum]);
+			if(iter instanceof FlexDigitalInput) {
+				if(inputValuesCalibrated[iter.pinNum] != newValue) {
+					Float overrideValue = digitalInputMap.getIfPresent(iter.pinNum);			//This will only be populated for digital inputs
+					if(overrideValue == null) {
+						digitalInputMap.put(iter.pinNum, newValue);
+					}
+				}
+				inputValues[iter.pinNum] = newValue;
+				
+				float newCalibratedValue = iter.getCalibratedValue();
+				if(inputValuesCalibrated[iter.pinNum] != newCalibratedValue) {
+					Float overrideValue = digitalCalibratedInputMap.getIfPresent(iter.pinNum);			//This will only be populated for digital inputs
+					if(overrideValue == null) {
+						digitalCalibratedInputMap.put(iter.pinNum, newCalibratedValue);
+					}
+				}
+				inputValuesCalibrated[iter.pinNum] = newCalibratedValue;
+			}
+			else {
+				inputValues[iter.pinNum] = newValue;
+				inputValuesCalibrated[iter.pinNum] = iter.getCalibratedValue();
+			}
 		}
 		
 //		outputValues[11] = inputValues[1];
