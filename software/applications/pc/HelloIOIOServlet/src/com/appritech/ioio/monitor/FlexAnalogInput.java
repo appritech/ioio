@@ -17,7 +17,6 @@ public class FlexAnalogInput extends FlexIOBase
 	}
 	private Element xmlElement;
 	private AnalogInput ain;
-	private Boolean needsInvert = false;
 	public float lastValue = -1.0f;
 	private String eventName;
 	
@@ -34,8 +33,6 @@ public class FlexAnalogInput extends FlexIOBase
 	{
 		String subType = xmlElement.getAttribute("subtype");
 		ain = ioio.openAnalogInput(pinNum);
-		if(subType.endsWith("Invert"))
-			needsInvert = true;
 		
 		try {
 			minInput = Float.parseFloat(xmlElement.getAttribute("MinInputValue"));
@@ -54,7 +51,8 @@ public class FlexAnalogInput extends FlexIOBase
 	@Override
 	public void close()
 	{
-		ain.close();
+		if(ain != null)
+			ain.close();
 	}
 	
 	@Override
@@ -64,8 +62,6 @@ public class FlexAnalogInput extends FlexIOBase
 			return 0.0f;
 		
 		float readValue = ain.read();
-		if(needsInvert)
-			readValue = 1.0f - readValue;
 		
 		if(lastValue != readValue)
 		{
@@ -85,16 +81,16 @@ public class FlexAnalogInput extends FlexIOBase
 		else if(lastValue < centerInput - deadband) {
 			//Lower half
 			float percent = (lastValue - minInput) / ((centerInput - deadband) - minInput);
-			return minOutput + percent * ((centerInput - deadband) - minInput);
+			return minOutput + percent * (centerOutput - minOutput);
 		}
 		else if(lastValue < centerInput + deadband) {
 			//deadband
 			return centerOutput;
 		}
-		else if(lastValue < maxOutput) {
+		else if(lastValue < maxInput) {
 			//Upper half
 			float percent = (lastValue - (centerInput + deadband)) / (maxInput - (centerInput + deadband));
-			return (centerInput + deadband) + percent * (maxInput - (centerInput + deadband));
+			return centerOutput + percent * (maxOutput - centerOutput);
 		}
 		else {
 			return maxOutput;

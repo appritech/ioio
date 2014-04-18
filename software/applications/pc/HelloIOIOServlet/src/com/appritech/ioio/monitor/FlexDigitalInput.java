@@ -64,7 +64,8 @@ public class FlexDigitalInput extends FlexIOBase
 	@Override
 	public void close()
 	{
-		din.close();
+		if(din != null)
+			din.close();
 	}
 	
 	@Override

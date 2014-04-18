@@ -57,7 +57,8 @@ public class FlexDigitalOutput extends FlexIOBase
 	@Override
 	public void close()
 	{
-		dout.close();
+		if(dout != null)
+			dout.close();
 	}
 	
 	@Override
