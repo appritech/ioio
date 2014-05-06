@@ -136,10 +136,19 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 			iter.setup(ioio_);
 		}
 	}
+	
+	private static boolean flashFlag = false;
+	public static boolean getFlashFlag() {
+		return flashFlag;
+	}
 
 	@Override
 	public void loop() throws ConnectionLostException, InterruptedException 
 	{
+		long milliseconds = System.currentTimeMillis();
+		milliseconds = milliseconds % 1000;			// mod 1000 should give just the ms portion
+		flashFlag = milliseconds > 500;
+		
 		if(updateDoc != null) {
 			updateIOIOState(updateDoc);
 			setup();
@@ -177,7 +186,7 @@ public class FlexIOIOLooper extends BaseIOIOLooper
 //		outputValues[12] = inputValues[2];
 //		ledVal = inputValues[2];
 		
-		Thread.sleep(50);
+		Thread.sleep(25);
 	}
 
 	public float getLedVal() {
