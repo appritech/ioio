@@ -186,7 +186,7 @@ IOIOApp.prototype = {
 
     saveConfigEvent: function(event){
         var self = event.data.app;
-        var xmlDoc = document.implementation.createDocument(null, "ioio", null);
+        var xmlDoc = document.implementation.createDocument("http://www.appritech.com/", "ioio", null);
         var xmlMapping = self.utility.defaultData.CalibrationXMLmapping;
 
         // Loop through config table rows, generate XML doc, POST to server
@@ -248,7 +248,7 @@ IOIOApp.prototype = {
     
 }
 
-var ioapp = new IOIOApp;
+var ioapp = new IOIOApp();
 
 
 

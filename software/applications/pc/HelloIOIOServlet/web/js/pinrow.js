@@ -179,7 +179,7 @@ PinRow.prototype = {
         statusNode.removeClass("label-warning");
         
         statusNode.html(parseFloat(status).toFixed(3));
-        console.log(status, this.calibrationData.True, status == this.calibrationData.True);
+//        console.log(status, this.calibrationData.True, status == this.calibrationData.True);
 
         if (this.type == 'ain'){
             statusNode.addClass("label-success");

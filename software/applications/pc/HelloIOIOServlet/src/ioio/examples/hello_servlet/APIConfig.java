@@ -1,6 +1,7 @@
 package ioio.examples.hello_servlet;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -74,31 +75,19 @@ public class APIConfig extends HttpServlet {
 
 		resp.setContentType("text/plain;charset=UTF-8");
 		try {				
-			BufferedReader br = req.getReader();
 			
+			String cleanedXml = cleanXMLString(req.getReader());
+
 			DocumentBuilderFactory dbfac = DocumentBuilderFactory.newInstance();
 	        DocumentBuilder docBuilder = dbfac.newDocumentBuilder();
-	        Document doc = docBuilder.parse(new InputSource(br));
+	        Document doc = docBuilder.parse(new ByteArrayInputStream( cleanedXml.getBytes() ));
 	        
 	        TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
 			DOMSource source = new DOMSource(doc);
 			
-//			StreamResult result = new StreamResult(System.out);
-
 			StreamResult result = new StreamResult(new File(CONFIG_FILENAME));
 			transformer.transform(source, result);
-			
-			
-//			String line;
-//			FileWriter writer = new FileWriter(CONFIG_FILENAME);
-//			writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-//	        while ((line = br.readLine()) != null) {
-//			    System.out.println(line);
-//			    writer.write(line);
-//			    writer.write(System.lineSeparator());
-//			}
-//			writer.close();	
 			
 			IOIOBackgroundService.getInstance().updateIOIOLooper();
 	        
@@ -118,6 +107,33 @@ public class APIConfig extends HttpServlet {
 		} finally {
 			out.write("Done");
 			out.close(); // Always close the output writer
+		}
+	}
+	
+	/**
+	 * Scrub XML string of any bad characters
+	 * 
+	 * @param reader
+	 * @return safe XML string
+	 */
+	private static String cleanXMLString(BufferedReader reader) {
+		try {
+			StringBuilder builder = new StringBuilder();
+			String inputLine;
+
+			for (int i = 0; (inputLine = reader.readLine()) != null ;i++){
+				if (i == 0){
+					// Cleans off any characters before the opening tag; 
+					// XML created by Internet Explorer needs this
+					builder.append(inputLine.substring(inputLine.indexOf("<")));
+				} else {
+					builder.append(inputLine);
+				}
+			}
+			return builder.toString();
+		} catch (IOException e) {
+			System.out.println("IOException: " + e);
+			return "";
 		}
 	}
 	
