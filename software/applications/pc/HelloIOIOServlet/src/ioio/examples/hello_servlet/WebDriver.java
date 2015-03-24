@@ -10,6 +10,9 @@ import org.apache.catalina.Context;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
 
+import com.appritech.sim.SimEventServlet;
+import com.appritech.sim.SimServlet;
+
 /**
  * Abstraction object to act as the main runner of Tomcat and manager of Servlets & WebApps
  * @author tgroshon
@@ -24,6 +27,9 @@ public class WebDriver {
 			new URLMapper("/api/config", new APIConfig()),
 			new URLMapper("/api/status", new APIStatus()),
 			new URLMapper("/api/trigger", new APITrigger()),
+			
+			new URLMapper("/sim/core", new SimServlet()),
+			new URLMapper("/sim/event", new SimEventServlet()),
 
 //			new URLMapper("/ioiohello", new HelloIOIOServlet()),
 //			new URLMapper("/ioioconfig", new ConfigIOIOServlet()),
