@@ -13,6 +13,10 @@ import com.appritech.sim.model.DataMap;
 public class SimServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = -7169699831535670238L;
+	
+	public SimServlet() {
+		
+	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws IOException, ServletException {
 		doPost(req, response);
@@ -53,7 +57,7 @@ public class SimServlet extends HttpServlet {
 		sb.append("<!DOCTYPE HTML>\n");
 		sb.append("<html>\n");
 		sb.append("<head>\n");
-		sb.append("<title>pixi.js example 8 Dragging</title>\n");
+		sb.append("<title>Simulator Prototype</title>\n");
 		sb.append("<style>\n");
 		sb.append("body {\n");
 		sb.append("					margin: 0;\n");
