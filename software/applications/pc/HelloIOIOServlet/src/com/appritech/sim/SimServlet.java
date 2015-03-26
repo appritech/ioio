@@ -9,13 +9,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.appritech.sim.model.DataMap;
+import com.appritech.sim.model.PhysicsModel;
 
 public class SimServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = -7169699831535670238L;
 	
 	public SimServlet() {
-		
+		PhysicsModel.getInstance().init();
 	}
 
 	public void doGet(HttpServletRequest req, HttpServletResponse response) throws IOException, ServletException {
@@ -37,12 +38,15 @@ public class SimServlet extends HttpServlet {
 				DataMap.setFloatVal(name, value);
 			}
 			
+			PhysicsModel.getInstance().update();
+			
 			out.println(getHeader());
 //			for(Valve v : valves) {
 //				out.println(v.getHtml());
 //			}
 			out.println("createValve(0.1, 0.1, 30, 18, " + Float.toString(DataMap.getFloatVal("V0")) + ", Math.PI / 2, \"V0\");");
 			out.println("createValve(0.1, 0.2, 30, 18, " + Float.toString(DataMap.getFloatVal("V2")) + ", 0, \"V2\");");
+			out.println("createPump(0.2, 0.2, 25, " + Float.toString(DataMap.getFloatVal("P1")) + ", 0, \"P1\");");
 			out.println(getFooter());
 		}catch (Exception e){
 			e.printStackTrace();
@@ -121,30 +125,46 @@ public class SimServlet extends HttpServlet {
 		sb.append("stage.addChild(valve);\n");
 		sb.append("}\n");
 		
-		sb.append("function makeEditable(valve)\n");
+		sb.append("function createPump(x, y, radius, position, rotation, name)\n");
 		sb.append("{\n");
-		sb.append("valve.interactive = true;\n");
-		sb.append("valve.buttonMode = true;\n");
-		sb.append("valve.mousedown = valve.touchstart = function(data)\n");
+		sb.append("var pump = new PIXI.Graphics();\n");
+		sb.append("pump.name = name;\n");
+		sb.append("makeEditable(pump);\n");
+		sb.append("pump.lineStyle(2, 0x000000);\n");
+		sb.append("if(position > 0.5)\n");
+		sb.append("pump.beginFill(0x00FF00);\n");
+		sb.append("else\n");
+		sb.append("pump.beginFill(0x000000);\n");
+		sb.append("pump.drawCircle(x * window.innerWidth, y * window.innerHeight, radius);\n");
+		sb.append("pump.endFill();\n");
+		sb.append("pump.rotation = rotation;\n");
+		sb.append("stage.addChild(pump);\n");
+		sb.append("}\n");
+		
+		sb.append("function makeEditable(comp)\n");
+		sb.append("{\n");
+		sb.append("comp.interactive = true;\n");
+		sb.append("comp.buttonMode = true;\n");
+		sb.append("comp.mousedown = comp.touchstart = function(data)\n");
 		sb.append("{\n");
 		sb.append("this.data = data;\n");
 		sb.append("this.dragging = true;\n");
 		sb.append("this.moved = false;\n");
 		sb.append("};\n");
-		sb.append("valve.mouseup = valve.mouseupoutside = valve.touchend = valve.touchendoutside = function(data)\n");
+		sb.append("comp.mouseup = comp.mouseupoutside = comp.touchend = comp.touchendoutside = function(data)\n");
 		sb.append("{\n");
 		sb.append("this.dragging = false;\n");
 		sb.append("this.data = null;\n");
 
 		sb.append("if(this.moved == false) {\n");
-		sb.append("var valvePosition = prompt(\"DesiredValvePosition\", \"0.0\");\n");
-		sb.append("if (valvePosition != null) {\n");
-		sb.append("window.location = \"/sim/core?name=\" + valve.name + \"&value=\" + valvePosition;\n");
+		sb.append("var compValue = prompt(\"Desired Value\", \"0.0\");\n");
+		sb.append("if (compValue != null) {\n");
+		sb.append("window.location = \"/sim/core?name=\" + comp.name + \"&value=\" + compValue;\n");
 		sb.append("}\n");
 		sb.append("}\n");
 		
 		sb.append("};\n");
-		sb.append("valve.mousemove = valve.touchmove = function(data)\n");
+		sb.append("comp.mousemove = comp.touchmove = function(data)\n");
 		sb.append("{\n");
 		sb.append("if(this.dragging)\n");
 		sb.append("{\n");
