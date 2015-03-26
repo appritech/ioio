@@ -135,9 +135,11 @@ public class SimServlet extends HttpServlet {
 		sb.append("pump.beginFill(0x00FF00);\n");
 		sb.append("else\n");
 		sb.append("pump.beginFill(0x000000);\n");
-		sb.append("pump.drawCircle(x * window.innerWidth, y * window.innerHeight, radius);\n");
+		sb.append("pump.drawCircle(0, 0, radius);\n");
 		sb.append("pump.endFill();\n");
 		sb.append("pump.rotation = rotation;\n");
+		sb.append("pump.position.x = x * window.innerWidth;\n");
+		sb.append("pump.position.y = y * window.innerHeight;\n");
 		sb.append("stage.addChild(pump);\n");
 		sb.append("}\n");
 		
