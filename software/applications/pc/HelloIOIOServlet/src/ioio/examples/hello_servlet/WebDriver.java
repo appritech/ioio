@@ -1,5 +1,10 @@
 package ioio.examples.hello_servlet;
 
+import ioio.examples.hello_servlet.APIConfig;
+import ioio.examples.hello_servlet.APIStatus;
+import ioio.examples.hello_servlet.APITrigger;
+import ioio.examples.hello_servlet.IOIOBackgroundService;
+
 import java.io.File;
 import java.util.HashMap;
 
