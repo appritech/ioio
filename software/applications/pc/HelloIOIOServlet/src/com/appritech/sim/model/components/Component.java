@@ -12,6 +12,9 @@ public abstract class Component {
 	private String name;
 	private double trueFlow;
 	
+	private float x;
+	private float y;
+	
 	public Component(String name) {
 		this.name = name;
 	}
@@ -59,6 +62,25 @@ public abstract class Component {
 		this.isAngry = isAngry;
 	}
 
+	public float getX() {
+		return x;
+	}
+
+	public void setX(float x) {
+		this.x = x;
+	}
+
+	public float getY() {
+		return y;
+	}
+
+	public void setY(float y) {
+		this.y = y;
+	}
+	
+	public void setValueFromUser(float value) {
+		//This can be overridden. It is a cheater method.
+	}
 
 
 	class Complaint {
