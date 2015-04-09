@@ -8,7 +8,8 @@ public class Pump extends Component {
 	private Component sink;
 	private Component source;
 	
-	public Pump(double mcrRating, double mcrPressure) {
+	public Pump(String name, double mcrRating, double mcrPressure) {
+		super(name);
 		this.mcrRating = mcrRating;
 		this.mcrPressure = mcrPressure;
 	}
@@ -38,8 +39,13 @@ public class Pump extends Component {
 	}
 
 	@Override
-	public double getPossibleFlow(Pump originPump, double oldMinPercent, double volumePerSecond) {
-		return sink.getPossibleFlow(this, 1, mcrRating);
+	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond) {
+		return sink.getPossibleFlowDown(originPump, 1, volumePerSecond);
+	}
+
+	@Override
+	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond) {
+		return source.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond);
 	}
 	
 }
