@@ -7,6 +7,8 @@ public abstract class Component {
 	
 	
 	private List<Complaint> complaintLog = new LinkedList<Complaint>();
+	private float x;
+	private float y;
 	private double currentAnger = 0;
 	private boolean isAngry = false;
 	
@@ -21,6 +23,26 @@ public abstract class Component {
 		}
 	}
 	
+	public float getX() {
+		return x;
+	}
+
+	public void setX(float x) {
+		this.x = x;
+	}
+
+	public float getY() {
+		return y;
+	}
+
+	public void setY(float y) {
+		this.y = y;
+	}
+	
+	public void setValueFromUser(float value) {
+		//This can be overridden. It is a cheater method.
+	}
+	
 	public void resetAnger() {
 		complaintLog.clear();
 		currentAnger = 0;
@@ -29,7 +51,7 @@ public abstract class Component {
 	public boolean isAngry() {
 		return isAngry;
 	}
-	
+
 	class Complaint {
 		private Pump originPump;
 		private double flow;
