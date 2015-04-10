@@ -1,6 +1,8 @@
 package com.appritech.sim.model.components;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class Combiner extends Component {
@@ -8,10 +10,28 @@ public class Combiner extends Component {
 	private Collection<Valve> inputs;
 	private Component output;
 	
+	private String[] inputNames;
+	private String outputName;
+	
 	public Combiner(String name, Collection<Valve> inputs, Component output) {
 		super(name);
 		this.setInputs(inputs);
 		this.setOutput(output);
+	}
+	
+	public Combiner(String name, String[] inputNames, String outputName) {
+		super(name);
+		this.inputNames = inputNames;
+		this.outputName = outputName;
+	}
+	
+	@Override
+	public void connectSelf(HashMap<String, Component> components) {
+		output = components.get(outputName);
+		inputs = new ArrayList<Valve>(inputNames.length);
+		for(int i = 0; i < inputNames.length; i++) {
+			inputs.add((Valve)components.get(inputNames[i]));
+		}
 	}
 	
 	public Component getOutput() {

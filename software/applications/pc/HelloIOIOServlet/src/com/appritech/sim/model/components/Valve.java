@@ -1,5 +1,7 @@
 package com.appritech.sim.model.components;
 
+import java.util.HashMap;
+
 public class Valve extends Component {
 	
 	private double openPercentage = 1.0;
@@ -9,8 +11,23 @@ public class Valve extends Component {
 	private Component source;
 	private Component sink;
 	
+	private String sinkName;
+	private String sourceName;
+	
 	public Valve(String name) {
 		super(name);
+	}
+	
+	public Valve(String name, String sinkName, String sourceName) {
+		super(name);
+		this.sinkName = sinkName;
+		this.sourceName = sourceName;
+	}
+	
+	@Override
+	public void connectSelf(HashMap<String, Component> components) {
+		sink = components.get(sinkName);
+		source = components.get(sourceName);
 	}
 
 	public double getOpenPercentage() {

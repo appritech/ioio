@@ -1,5 +1,6 @@
 package com.appritech.sim.model.components;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -76,6 +77,10 @@ public abstract class Component {
 
 	public void setY(float y) {
 		this.y = y;
+	}
+
+	public void connectSelf(HashMap<String, Component> components) {
+		//This should probably be abstract... but default can do nothing...
 	}
 	
 	public void setValueFromUser(float value) {

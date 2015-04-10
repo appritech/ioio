@@ -1,5 +1,7 @@
 package com.appritech.sim.model.components;
 
+import java.util.HashMap;
+
 public class Pump extends Component {
 	
 	private double mcrRating;
@@ -8,10 +10,27 @@ public class Pump extends Component {
 	private Component sink;
 	private Component source;
 	
+	private String sinkName;
+	private String sourceName;
+	
 	public Pump(String name, double mcrRating, double mcrPressure) {
 		super(name);
 		this.mcrRating = mcrRating;
 		this.mcrPressure = mcrPressure;
+	}
+	
+	public Pump(String name, double mcrRating, double mcrPressure, String sinkName, String sourceName) {
+		super(name);
+		this.mcrRating = mcrRating;
+		this.mcrPressure = mcrPressure;
+		this.sinkName = sinkName;
+		this.sourceName = sourceName;
+	}
+	
+	@Override
+	public void connectSelf(HashMap<String, Component> components) {
+		sink = components.get(sinkName);
+		source = components.get(sourceName);
 	}
 
 	public double getMcrRating() {

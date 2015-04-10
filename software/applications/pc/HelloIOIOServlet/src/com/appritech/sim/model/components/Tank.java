@@ -1,15 +1,34 @@
 package com.appritech.sim.model.components;
 
+import java.util.HashMap;
+
 public class Tank extends Component {
 	private double capacity;
 	private double currentVolume;
 	private Component source;
 	private Component sink;
 	
+	private String sinkName;
+	private String sourceName;
+	
 	public Tank(String name, double capacity, double currentVolume) {
 		super(name);
 		this.capacity = capacity;
 		this.currentVolume = currentVolume;
+	}
+	
+	public Tank(String name, double capacity, double currentVolume, String sinkName, String sourceName) {
+		this(name, capacity, currentVolume);
+		this.sinkName = sinkName;
+		this.sourceName = sourceName;
+	}
+	
+	@Override
+	public void connectSelf(HashMap<String, Component> components) {
+		if(sink != null)
+			sink = components.get(sinkName);
+		if(source != null)
+			source = components.get(sourceName);			//NOTE: It doesn't seem like source is ever set... ever...
 	}
 
 	public double getCapacity() {
