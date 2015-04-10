@@ -2,7 +2,6 @@ package com.appritech.sim.model.components;
 
 public class Valve extends Component {
 	
-	private String name;
 	private double openPercentage = 1.0;
 	private double maxFlow = Double.MAX_VALUE;
 	private double trueFlow = 0; 
@@ -11,11 +10,7 @@ public class Valve extends Component {
 	private Component sink;
 	
 	public Valve(String name) {
-		this.name = name;
-	}
-	
-	public String getName() {
-		return name;
+		super(name);
 	}
 
 	public double getOpenPercentage() {
@@ -32,10 +27,6 @@ public class Valve extends Component {
 
 	public void setMaxFlow(double maxFlow) {
 		this.maxFlow = maxFlow;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 	
 	public void setTrueFlow(double d) {
@@ -55,9 +46,17 @@ public class Valve extends Component {
 	}
 
 	@Override
-	public double getPossibleFlow(Pump originPump, double oldMin, double volumePerSecond) {
+	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond) {
 		double currentMin = openPercentage < oldMin ? openPercentage : oldMin;
-		double newMin = sink.getPossibleFlow(originPump, currentMin, volumePerSecond);
+		double newMin = sink.getPossibleFlowDown(originPump, currentMin, volumePerSecond);
+		addToComplaintLog(originPump, newMin);
+		return newMin;
+	}
+
+	@Override
+	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond) {
+		double currentMin = openPercentage < oldMin ? openPercentage : oldMin;
+		double newMin = source.getPossibleFlowUp(originPump, currentMin, volumePerSecond);
 		addToComplaintLog(originPump, newMin);
 		return newMin;
 	}

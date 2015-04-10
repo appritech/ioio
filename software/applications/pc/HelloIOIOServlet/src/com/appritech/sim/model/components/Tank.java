@@ -3,8 +3,11 @@ package com.appritech.sim.model.components;
 public class Tank extends Component {
 	private double capacity;
 	private double currentVolume;
+	private Component source;
+	private Component sink;
 	
-	public Tank(double capacity, double currentVolume) {
+	public Tank(String name, double capacity, double currentVolume) {
+		super(name);
 		this.capacity = capacity;
 		this.currentVolume = currentVolume;
 	}
@@ -25,8 +28,24 @@ public class Tank extends Component {
 		this.currentVolume = currentVolume;
 	}
 
+	public Component getSource() {
+		return source;
+	}
+
+	public void setSource(Component source) {
+		this.source = source;
+	}
+
+	public Component getSink() {
+		return sink;
+	}
+
+	public void setSink(Component sink) {
+		this.sink = sink;
+	}
+
 	@Override
-	public double getPossibleFlow(Pump originPump, double oldMin, double volumePerSecond) {
+	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond) {
 		if (capacity <= currentVolume) {
 			return 0;
 		}
@@ -34,6 +53,23 @@ public class Tank extends Component {
 		if (capacity - currentVolume < oldMin * volumePerSecond) {
 			double remainingSpace = capacity - currentVolume;
 			double percentAvailable = remainingSpace / volumePerSecond;
+			return percentAvailable;
+		}
+		
+		return oldMin;
+	}
+
+	@Override
+	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond) {
+		if (currentVolume <= 0) {
+			return 0;
+		}
+		
+		//If empty, return nothing
+		//If currentVolume < oldMin * volumePerSecond
+		if (currentVolume < oldMin * volumePerSecond) {
+			double remainingVolume = currentVolume;
+			double percentAvailable = remainingVolume / volumePerSecond;
 			return percentAvailable;
 		}
 		

@@ -7,12 +7,20 @@ public abstract class Component {
 	
 	
 	private List<Complaint> complaintLog = new LinkedList<Complaint>();
-	private float x;
-	private float y;
 	private double currentAnger = 0;
 	private boolean isAngry = false;
+	private String name;
+	private double trueFlow;
 	
-	public abstract double getPossibleFlow(Pump originPump, double oldMinPercent, double volumePerSecond);
+	private float x;
+	private float y;
+	
+	public Component(String name) {
+		this.name = name;
+	}
+	
+	public abstract double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond);
+	public abstract double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond);
 	
 	public void addToComplaintLog(Pump originPump, double flow) {
 		complaintLog.add(new Complaint(originPump, flow));
@@ -23,6 +31,37 @@ public abstract class Component {
 		}
 	}
 	
+	public void resetAnger() {
+		complaintLog.clear();
+		currentAnger = 0;
+	}
+	
+	public boolean isAngry() {
+		return isAngry;
+	}
+	
+	
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public double getTrueFlow() {
+		return trueFlow;
+	}
+
+	public void setTrueFlow(double trueFlow) {
+		this.trueFlow = trueFlow;
+	}
+
+	public void setAngry(boolean isAngry) {
+		this.isAngry = isAngry;
+	}
+
 	public float getX() {
 		return x;
 	}
@@ -42,15 +81,7 @@ public abstract class Component {
 	public void setValueFromUser(float value) {
 		//This can be overridden. It is a cheater method.
 	}
-	
-	public void resetAnger() {
-		complaintLog.clear();
-		currentAnger = 0;
-	}
-	
-	public boolean isAngry() {
-		return isAngry;
-	}
+
 
 	class Complaint {
 		private Pump originPump;
@@ -78,5 +109,7 @@ public abstract class Component {
 		}
 		
 	}
+	
+	
 
 }

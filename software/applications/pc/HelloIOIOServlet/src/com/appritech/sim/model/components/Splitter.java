@@ -1,7 +1,5 @@
 package com.appritech.sim.model.components;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,28 +9,31 @@ public class Splitter extends Component {
 	private Valve input;
 	private List<SplitValve> outputs;
 	
-	public Splitter(Valve input, List<SplitValve> outputs) {
-		super();
-		this.input = input;
-		this.outputs = outputs;
+	public Splitter(String name, Valve input, List<SplitValve> outputs) {
+		super(name);
+		setInput(input);
+		setOutputs(outputs);
 	}	
 	
 	public Valve getInput() {
 		return input;
 	}
 	public void setInput(Valve input) {
+		input.setSink(this);
 		this.input = input;
 	}
 	public List<Valve> getOutputs() {
 		return outputs.stream().map(v -> v.getValve()).collect(Collectors.toList());
 	}
 	public void setOutputs(List<SplitValve> outputs) {
+		for (SplitValve v : outputs) {
+			v.getValve().setSource(this);
+		}
 		this.outputs = outputs;
 	}
 	
-	//Yes, this one will need some testing.
 	@Override
-	public double getPossibleFlow(Pump originPump, double oldMinPercent, double volumePerSecond) {
+	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond) {
 		
 		double[] maxFlow = new double[outputs.size()];
 		double[] preferredFlow = new double[outputs.size()];
@@ -42,7 +43,7 @@ public class Splitter extends Component {
 		for (int i = 0; i < outputs.size(); i++) {
 			SplitValve temp = outputs.get(i);
 			double maxToSendDown = Math.min(temp.getMaxWeight(), oldMinPercent);
-			double childMax = temp.getValve().getPossibleFlow(originPump, maxToSendDown, volumePerSecond);
+			double childMax = temp.getValve().getPossibleFlowDown(originPump, maxToSendDown, volumePerSecond);
 			double currentMaxFlow = Math.min(temp.getMaxWeight(), childMax);
 			maxFlow[i] = currentMaxFlow;
 			double prefFlow = Math.min(temp.getNormalWeight(), currentMaxFlow);
@@ -54,7 +55,7 @@ public class Splitter extends Component {
 		}
 		
 		
-		if (Math.abs(currentSum - 1) > 0.0005) { //We need someone to go above their comfort level.
+		if (currentSum > 1) { //We need someone to go above their comfort level.
 			double sumOfMaxFlow = 0;
 			for (double d : maxFlow) {
 				sumOfMaxFlow += d;
@@ -75,6 +76,13 @@ public class Splitter extends Component {
 		
 		addToComplaintLog(originPump, theRealFlow);
 		return theRealFlow;
+	}
+
+	@Override
+	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond) {
+		double flowUp = input.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond);
+		addToComplaintLog(originPump, flowUp);
+		return flowUp;
 	}
 
 }
