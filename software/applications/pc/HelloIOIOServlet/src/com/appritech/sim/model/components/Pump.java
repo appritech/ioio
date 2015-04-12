@@ -11,7 +11,6 @@ public class Pump extends Component {
 	private Component source;
 	
 	private String sinkName;
-	private String sourceName;
 	
 	public Pump(String name, double mcrRating, double mcrPressure) {
 		super(name);
@@ -19,18 +18,17 @@ public class Pump extends Component {
 		this.mcrPressure = mcrPressure;
 	}
 	
-	public Pump(String name, double mcrRating, double mcrPressure, String sinkName, String sourceName) {
+	public Pump(String name, double mcrRating, double mcrPressure, String sinkName) {
 		super(name);
 		this.mcrRating = mcrRating;
 		this.mcrPressure = mcrPressure;
 		this.sinkName = sinkName;
-		this.sourceName = sourceName;
 	}
 	
 	@Override
 	public void connectSelf(HashMap<String, Component> components) {
 		sink = components.get(sinkName);
-		source = components.get(sourceName);
+		sink.setSource(this);
 	}
 
 	public double getMcrRating() {

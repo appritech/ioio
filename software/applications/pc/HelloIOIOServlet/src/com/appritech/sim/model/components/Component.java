@@ -22,6 +22,7 @@ public abstract class Component {
 	
 	public abstract double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond);
 	public abstract double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond);
+	public abstract void setSource(Component source);
 	
 	public void addToComplaintLog(Pump originPump, double flow) {
 		complaintLog.add(new Complaint(originPump, flow));

@@ -10,7 +10,6 @@ import com.appritech.sim.model.components.helper.SplitValve;
 public class Splitter extends Component {
 	private Valve input;
 	private List<SplitValve> outputs;
-	private String inputName;
 	private String[] outputNames;
 	private double[] maxWeights;
 	private double[] normWeights;
@@ -21,9 +20,8 @@ public class Splitter extends Component {
 		setOutputs(outputs);
 	}
 	
-	public Splitter(String name, String inputName, String[] outputNames) {
+	public Splitter(String name, String[] outputNames) {
 		super(name);
-		this.inputName = inputName;
 		this.outputNames = outputNames;
 		this.maxWeights = new double[outputNames.length];
 		this.normWeights = new double[outputNames.length];
@@ -35,7 +33,6 @@ public class Splitter extends Component {
 	
 	public Splitter(String name, String inputName, String[] outputNames, double[] maxWeights, double[] normWeights) {
 		super(name);
-		this.inputName = inputName;
 		this.outputNames = outputNames;
 		this.maxWeights = maxWeights;
 		this.normWeights = normWeights;
@@ -43,15 +40,23 @@ public class Splitter extends Component {
 	
 	@Override
 	public void connectSelf(HashMap<String, Component> components) {
-		this.input = (Valve)components.get(inputName);
 		this.outputs = new ArrayList<SplitValve>(outputNames.length);
 		for(int i = 0; i < outputNames.length; i++) {
-			outputs.add(new SplitValve((Valve)components.get(outputNames[i]), normWeights[i], maxWeights[i]));
+			Valve v = (Valve)components.get(outputNames[i]);
+			outputs.add(new SplitValve(v, normWeights[i], maxWeights[i]));
+			v.setSource(this);
 		}
 	}
 
 	public Valve getInput() {
 		return input;
+	}
+	@Override
+	public void setSource(Component source) {
+		if(source instanceof Valve)
+			setInput((Valve)source);
+		else
+			System.out.println("Splitter's input must be a valve");
 	}
 	public void setInput(Valve input) {
 		input.setSink(this);

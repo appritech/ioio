@@ -26,12 +26,18 @@ public class Combiner extends Component {
 	}
 	
 	@Override
+	public void setSource(Component source) {
+		//Don't do anything. Combiners must set their sources manually in 'connectSelf', and they must be defined in their constructor
+	};
+	
+	@Override
 	public void connectSelf(HashMap<String, Component> components) {
 		output = components.get(outputName);
 		inputs = new ArrayList<Valve>(inputNames.length);
 		for(int i = 0; i < inputNames.length; i++) {
 			inputs.add((Valve)components.get(inputNames[i]));
 		}
+		output.setSource(this);
 	}
 	
 	public Component getOutput() {
