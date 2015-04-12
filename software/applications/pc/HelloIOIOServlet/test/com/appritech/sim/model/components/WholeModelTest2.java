@@ -18,7 +18,7 @@ public class WholeModelTest2 {
 		mc.addComponent(new Valve("v2", "c1"));
 		
 		//Valves v1 and v2 combine into c1, and then to a totalIgnore common pipe.
-		mc.addComponent(new Combiner("c1", new String[] {"v1", "v2"}, "totalIgnore"));
+		mc.addComponent(new Combiner("c1", "totalIgnore"));
 		mc.addComponent(new Valve("totalIgnore", "s1"));		//TODO: We should probably have a better name...
 
 		//Splitter s1 splits totalIgnore into v3 and v4, so that they can got to p1 and p2, which go further on to v5 and v6
@@ -31,7 +31,7 @@ public class WholeModelTest2 {
 		mc.addComponent(new Valve("v6", "c2"));
 		
 		//Valves v5 and v6 then get combined into Ignore2.
-		mc.addComponent(new Combiner("c2", new String[] {"v5", "v6"}, "Ignore2"));
+		mc.addComponent(new Combiner("c2", "Ignore2"));
 		mc.addComponent(new Valve("Ignore2", "s2"));
 		
 		//Valves v7, v8, and v9 all go in between s2 and c3
@@ -39,7 +39,7 @@ public class WholeModelTest2 {
 		mc.addComponent(new Valve("v7", "c3"));
 		mc.addComponent(new Valve("v8", "c3"));
 		mc.addComponent(new Valve("v9", "c3"));
-		mc.addComponent(new Combiner("c3", new String[] {"v7", "v8", "v9"}, "v10"));
+		mc.addComponent(new Combiner("c3", "v10"));
 		
 		//Valve v10 goes between c3 and s3
 		mc.addComponent(new Valve("v10", "s3"));

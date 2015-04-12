@@ -31,7 +31,7 @@ public class Splitter extends Component {
 		}
 	}
 	
-	public Splitter(String name, String inputName, String[] outputNames, double[] maxWeights, double[] normWeights) {
+	public Splitter(String name, String[] outputNames, double[] maxWeights, double[] normWeights) {
 		super(name);
 		this.outputNames = outputNames;
 		this.maxWeights = maxWeights;

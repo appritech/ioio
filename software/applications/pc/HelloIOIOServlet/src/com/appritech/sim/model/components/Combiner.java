@@ -10,7 +10,6 @@ public class Combiner extends Component {
 	private Collection<Valve> inputs;
 	private Component output;
 	
-	private String[] inputNames;
 	private String outputName;
 	
 	public Combiner(String name, Collection<Valve> inputs, Component output) {
@@ -19,24 +18,22 @@ public class Combiner extends Component {
 		this.setOutput(output);
 	}
 	
-	public Combiner(String name, String[] inputNames, String outputName) {
+	public Combiner(String name, String outputName) {
 		super(name);
-		this.inputNames = inputNames;
 		this.outputName = outputName;
+		inputs = new ArrayList<Valve>();
 	}
 	
 	@Override
 	public void setSource(Component source) {
 		//Don't do anything. Combiners must set their sources manually in 'connectSelf', and they must be defined in their constructor
+		inputs.add((Valve)source);
 	};
 	
 	@Override
 	public void connectSelf(HashMap<String, Component> components) {
 		output = components.get(outputName);
-		inputs = new ArrayList<Valve>(inputNames.length);
-		for(int i = 0; i < inputNames.length; i++) {
-			inputs.add((Valve)components.get(inputNames[i]));
-		}
+		
 		output.setSource(this);
 	}
 	
