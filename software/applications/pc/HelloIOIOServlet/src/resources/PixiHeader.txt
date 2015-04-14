@@ -1,0 +1,35 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Simulator Prototype</title>
+	<style>
+	body {
+		margin: 0;
+		padding: 0;
+		background-color: #FFFFFF;
+	}
+	.textHolder{
+		width: 400px;
+	}
+	</style>
+	<script src="/js/pixi.js"></script>
+</head>
+<body>
+	<script>
+		var stage = new PIXI.Stage(0x97c56e, true);
+		var renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, {antialias: true});
+		document.body.appendChild(renderer.view);
+		renderer.view.style.position = "absolute";
+		renderer.view.style.top = "0px";
+		renderer.view.style.left = "0px";
+		
+		requestAnimFrame( animate );
+		
+		var texture = PIXI.Texture.fromImage("/images/Ballast.png");
+		var background = new PIXI.Sprite(texture);
+		background.position.x = 0;
+		background.position.y = 0;
+		background.width = window.innerWidth;
+		background.height = window.innerHeight;
+		stage.addChild(background);
+		

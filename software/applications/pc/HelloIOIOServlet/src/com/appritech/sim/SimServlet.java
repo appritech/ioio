@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.appritech.sim.model.DataMap;
 import com.appritech.sim.model.PhysicsModel;
+import com.google.common.base.Charsets;
+import com.google.common.io.Resources;
 
 public class SimServlet extends HttpServlet {
 	
@@ -57,133 +59,19 @@ public class SimServlet extends HttpServlet {
 	}
 	
 	private String getHeader() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<!DOCTYPE HTML>\n");
-		sb.append("<html>\n");
-		sb.append("<head>\n");
-		sb.append("<title>Simulator Prototype</title>\n");
-		sb.append("<style>\n");
-		sb.append("body {\n");
-		sb.append("					margin: 0;\n");
-		sb.append("					padding: 0;\n");
-		sb.append("					background-color: #FFFFFF;\n");
-		sb.append("}\n");
-		sb.append(".textHolder{\n");
-		sb.append("					width: 400px;\n");
-		sb.append("}\n");
-		sb.append("</style>\n");
-		sb.append("<script src=\"/js/pixi.js\"></script>\n");
-		sb.append("</head>\n");
-		sb.append("<body>\n");
-		sb.append("<script>\n");
-		sb.append("var stage = new PIXI.Stage(0x97c56e, true);\n");
-		sb.append("var renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, {antialias: true});\n");
-		sb.append("document.body.appendChild(renderer.view);\n");
-		sb.append("renderer.view.style.position = \"absolute\";\n");
-		sb.append("renderer.view.style.top = \"0px\";\n");
-		sb.append("renderer.view.style.left = \"0px\";\n");
-		sb.append("requestAnimFrame( animate );\n");
-		sb.append("var texture = PIXI.Texture.fromImage(\"/images/Ballast.png\");\n");
-		sb.append("var background = new PIXI.Sprite(texture);\n");
-		sb.append("background.position.x = 0;\n");
-		sb.append("background.position.y = 0;\n");
-		sb.append("background.width = window.innerWidth;\n");
-		sb.append("background.height = window.innerHeight;\n");
-		sb.append("stage.addChild(background);\n");
-		return sb.toString();
+		try {
+			return Resources.toString(this.getClass().getResource("/resources/PixiHeader.txt"), Charsets.UTF_8);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 	private String getFooter() {
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("function createValve(x, y, width, height, position, rotation, name)\n");
-		sb.append("{\n");
-		sb.append("var valve = new PIXI.Graphics();\n");
-		sb.append("valve.name = name;\n");
-		sb.append("makeEditable(valve);\n");
-		sb.append("valve.lineStyle(2, 0x000000);\n");
-		sb.append("if(position > 0.5)\n");
-		sb.append("valve.beginFill(0x00FF00);\n");
-		sb.append("else\n");
-		sb.append("valve.beginFill(0x000000);\n");
-		sb.append("valve.moveTo(0, 0);\n");
-		sb.append("valve.lineTo(0 - width / 2, 0 - height / 2);\n");
-		sb.append("valve.lineTo(0, 0 - height);\n");
-		sb.append("valve.lineTo(0, 0);\n");
-		sb.append("valve.endFill();\n");
-		sb.append("if(position > 0.5)\n");
-		sb.append("valve.beginFill(0x00FF00);\n");
-		sb.append("else\n");
-		sb.append("valve.beginFill(0x000000);\n");
-		sb.append("valve.moveTo(0 - width, 0 - height);\n");
-		sb.append("valve.lineTo(0 - width / 2, 0 - height / 2);\n");
-		sb.append("valve.lineTo(0 - width, 0);\n");
-		sb.append("valve.lineTo(0 - width, 0 - height);\n");
-		sb.append("valve.endFill();\n");
-		sb.append("valve.position.x = x * window.innerWidth;\n");
-		sb.append("valve.position.y = y * window.innerHeight;\n");
-		sb.append("valve.rotation = rotation;\n");
-		sb.append("stage.addChild(valve);\n");
-		sb.append("}\n");
-		
-		sb.append("function createPump(x, y, radius, position, rotation, name)\n");
-		sb.append("{\n");
-		sb.append("var pump = new PIXI.Graphics();\n");
-		sb.append("pump.name = name;\n");
-		sb.append("makeEditable(pump);\n");
-		sb.append("pump.lineStyle(2, 0x000000);\n");
-		sb.append("if(position > 0.5)\n");
-		sb.append("pump.beginFill(0x00FF00);\n");
-		sb.append("else\n");
-		sb.append("pump.beginFill(0x000000);\n");
-		sb.append("pump.drawCircle(0, 0, radius);\n");
-		sb.append("pump.endFill();\n");
-		sb.append("pump.rotation = rotation;\n");
-		sb.append("pump.position.x = x * window.innerWidth;\n");
-		sb.append("pump.position.y = y * window.innerHeight;\n");
-		sb.append("stage.addChild(pump);\n");
-		sb.append("}\n");
-		
-		sb.append("function makeEditable(comp)\n");
-		sb.append("{\n");
-		sb.append("comp.interactive = true;\n");
-		sb.append("comp.buttonMode = true;\n");
-		sb.append("comp.mousedown = comp.touchstart = function(data)\n");
-		sb.append("{\n");
-		sb.append("this.data = data;\n");
-		sb.append("this.dragging = true;\n");
-		sb.append("this.moved = false;\n");
-		sb.append("};\n");
-		sb.append("comp.mouseup = comp.mouseupoutside = comp.touchend = comp.touchendoutside = function(data)\n");
-		sb.append("{\n");
-		sb.append("this.dragging = false;\n");
-		sb.append("this.data = null;\n");
-
-		sb.append("if(this.moved == false) {\n");
-		sb.append("var compValue = prompt(\"Desired Value\", \"0.0\");\n");
-		sb.append("if (compValue != null) {\n");
-		sb.append("window.location = \"/sim/core?name=\" + comp.name + \"&value=\" + compValue;\n");
-		sb.append("}\n");
-		sb.append("}\n");
-		
-		sb.append("};\n");
-		sb.append("comp.mousemove = comp.touchmove = function(data)\n");
-		sb.append("{\n");
-		sb.append("if(this.dragging)\n");
-		sb.append("{\n");
-		sb.append("					var newPosition = this.data.getLocalPosition(this.parent);\n");
-		sb.append("					this.position.x = newPosition.x;\n");
-		sb.append("					this.position.y = newPosition.y;\n");
-		sb.append("					this.moved = true;\n");
-		sb.append("}\n");
-		sb.append("}\n");
-		sb.append("}\n");
-		sb.append("function animate() {\n");
-		sb.append("requestAnimFrame( animate );\n");
-		sb.append("renderer.render(stage);\n");
-		sb.append("}\n");
-		sb.append("</script>\n");
-		sb.append("</body>\n");
-		sb.append("</html>\n");
-		return sb.toString();
+		try {
+			return Resources.toString(this.getClass().getResource("/resources/PixiFooter.txt"), Charsets.UTF_8);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 }
