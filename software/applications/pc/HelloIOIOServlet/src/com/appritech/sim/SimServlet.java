@@ -46,9 +46,10 @@ public class SimServlet extends HttpServlet {
 //			for(Valve v : valves) {
 //				out.println(v.getHtml());
 //			}
-			out.println("createValve(0.1, 0.1, 30, 18, " + Float.toString(DataMap.getFloatVal("V0")) + ", Math.PI / 2, \"V0\");");
-			out.println("createValve(0.1, 0.2, 30, 18, " + Float.toString(DataMap.getFloatVal("V2")) + ", 0, \"V2\");");
-			out.println("createPump(0.2, 0.2, 25, " + Float.toString(DataMap.getFloatVal("P1")) + ", 0, \"P1\");");
+			out.println("createValve(0.1, 0.1, 0.015, 0.015, " + Float.toString(DataMap.getFloatVal("V0")) + ", Math.PI / 2, \"V0\");");
+			out.println("createValve(0.1, 0.2, 0.015, 0.015, " + Float.toString(DataMap.getFloatVal("V2")) + ", 0, \"V2\");");
+			out.println("createPump(0.2, 0.2, 0.02, " + Float.toString(DataMap.getFloatVal("P1")) + ", 0, \"P1\");");
+			out.println("createTank(0.3, 0.3, 0.05, 0.1, " + Float.toString(DataMap.getFloatVal("T1")) + ", 0, \"T1\");");
 			out.println(getFooter());
 		}catch (Exception e){
 			e.printStackTrace();

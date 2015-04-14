@@ -1,89 +1,122 @@
-		function createValve(x, y, width, height, position, rotation, name)
+		
+		function createValve(x, y, w, h, position, rotation, name)
 		{
-		var valve = new PIXI.Graphics();
-		valve.name = name;
-		makeEditable(valve);
-		valve.lineStyle(2, 0x000000);
-		if(position > 0.5)
-		valve.beginFill(0x00FF00);
-		else
-		valve.beginFill(0x000000);
-		valve.moveTo(0, 0);
-		valve.lineTo(0 - width / 2, 0 - height / 2);
-		valve.lineTo(0, 0 - height);
-		valve.lineTo(0, 0);
-		valve.endFill();
-		if(position > 0.5)
-		valve.beginFill(0x00FF00);
-		else
-		valve.beginFill(0x000000);
-		valve.moveTo(0 - width, 0 - height);
-		valve.lineTo(0 - width / 2, 0 - height / 2);
-		valve.lineTo(0 - width, 0);
-		valve.lineTo(0 - width, 0 - height);
-		valve.endFill();
-		valve.position.x = x * window.innerWidth;
-		valve.position.y = y * window.innerHeight;
-		valve.rotation = rotation;
-		stage.addChild(valve);
+			var width = w * window.innerWidth;
+			var height = h * window.innerHeight;
+			
+			var valve = new PIXI.Graphics();
+			valve.name = name;
+			makeEditable(valve);
+			valve.lineStyle(2, 0x000000);
+			
+			if(position > 0.5)
+				valve.beginFill(0x00FF00);
+			else
+				valve.beginFill(0x000000);
+				
+			valve.moveTo(0, 0);
+			valve.lineTo(0 - width / 2, 0 - height / 2);
+			valve.lineTo(0, 0 - height);
+			valve.lineTo(0, 0);
+			valve.endFill();
+			
+			if(position > 0.5)
+				valve.beginFill(0x00FF00);
+			else
+				valve.beginFill(0x000000);
+				
+			valve.moveTo(0 - width, 0 - height);
+			valve.lineTo(0 - width / 2, 0 - height / 2);
+			valve.lineTo(0 - width, 0);
+			valve.lineTo(0 - width, 0 - height);
+			valve.endFill();
+			
+			valve.position.x = x * window.innerWidth;
+			valve.position.y = y * window.innerHeight;
+			valve.rotation = rotation;
+			stage.addChild(valve);
+		}
+		
+		function createTank(x, y, width, height, position, rotation, name)
+		{
+			var tank = new PIXI.Graphics();
+			tank.name = name;
+			makeEditable(tank);
+			tank.lineStyle(2, 0x000000);
+
+			tank.beginFill(0x999999);
+			tank.drawRect(0, 0, width * window.innerWidth, height * window.innerHeight);
+			tank.endFill();
+			
+			tank.beginFill(0x000099);
+			tank.drawRect(0, height * window.innerHeight * (1.0 - position), width * window.innerWidth, height * window.innerHeight * position);
+			tank.endFill();
+			
+			tank.rotation = rotation;
+			tank.position.x = x * window.innerWidth;
+			tank.position.y = y * window.innerHeight;
+			stage.addChild(tank);
 		}
 		
 		function createPump(x, y, radius, position, rotation, name)
 		{
-		var pump = new PIXI.Graphics();
-		pump.name = name;
-		makeEditable(pump);
-		pump.lineStyle(2, 0x000000);
-		if(position > 0.5)
-		pump.beginFill(0x00FF00);
-		else
-		pump.beginFill(0x000000);
-		pump.drawCircle(0, 0, radius);
-		pump.endFill();
-		pump.rotation = rotation;
-		pump.position.x = x * window.innerWidth;
-		pump.position.y = y * window.innerHeight;
-		stage.addChild(pump);
+			var pump = new PIXI.Graphics();
+			pump.name = name;
+			makeEditable(pump);
+			pump.lineStyle(2, 0x000000);
+			
+			if(position > 0.5)
+				pump.beginFill(0x00FF00);
+			else
+				pump.beginFill(0x000000);
+				
+			pump.drawCircle(0, 0, radius * window.innerHeight);
+			pump.endFill();
+			pump.rotation = rotation;
+			pump.position.x = x * window.innerWidth;
+			pump.position.y = y * window.innerHeight;
+			stage.addChild(pump);
 		}
 		
 		function makeEditable(comp)
 		{
-		comp.interactive = true;
-		comp.buttonMode = true;
-		comp.mousedown = comp.touchstart = function(data)
-		{
-		this.data = data;
-		this.dragging = true;
-		this.moved = false;
-		};
-		comp.mouseup = comp.mouseupoutside = comp.touchend = comp.touchendoutside = function(data)
-		{
-		this.dragging = false;
-		this.data = null;
-
-		if(this.moved == false) {
-		var compValue = prompt("Desired Value", "0.0");
-		if (compValue != null) {
-		window.location = "/sim/core?name=" + comp.name + "&value=" + compValue;
-		}
+			comp.interactive = true;
+			comp.buttonMode = true;
+			comp.mousedown = comp.touchstart = function(data)
+			{
+				this.data = data;
+				this.dragging = true;
+				this.moved = false;
+			};
+			comp.mouseup = comp.mouseupoutside = comp.touchend = comp.touchendoutside = function(data)
+			{
+				this.dragging = false;
+				this.data = null;
+		
+				if(this.moved == false) {
+					var compValue = prompt("Desired Value", "0.0");
+					if (compValue != null) {
+						window.location = "/sim/core?name=" + comp.name + "&value=" + compValue;
+					}
+				}
+			};
+			comp.mousemove = comp.touchmove = function(data)
+			{
+				if(this.dragging)
+				{
+					var newPosition = this.data.getLocalPosition(this.parent);
+					this.position.x = newPosition.x;
+					this.position.y = newPosition.y;
+					this.moved = true;
+				}
+			}
 		}
 		
-		};
-		comp.mousemove = comp.touchmove = function(data)
-		{
-		if(this.dragging)
-		{
-							var newPosition = this.data.getLocalPosition(this.parent);
-							this.position.x = newPosition.x;
-							this.position.y = newPosition.y;
-							this.moved = true;
-		}
-		}
-		}
 		function animate() {
-		requestAnimFrame( animate );
-		renderer.render(stage);
+			requestAnimFrame( animate );
+			renderer.render(stage);
 		}
-		</script>
-		</body>
-		</html>
+		
+	</script>
+</body>
+</html>
