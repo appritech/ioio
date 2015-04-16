@@ -1,5 +1,6 @@
 package com.appritech.sim.model;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 import com.appritech.sim.model.components.Component;
@@ -21,6 +22,10 @@ public class MimicContainer {
 		for(Component c : components.values()) {
 			c.connectSelf(components);
 		}
+	}
+
+	public Collection<Component> getComponents() {
+		return components.values();
 	}
 
 	public Component getComponent(String name) {

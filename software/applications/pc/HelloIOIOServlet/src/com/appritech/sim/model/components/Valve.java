@@ -1,6 +1,10 @@
 package com.appritech.sim.model.components;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+
+import com.appritech.sim.model.DrawingLine;
 
 public class Valve extends Component {
 	
@@ -22,10 +26,24 @@ public class Valve extends Component {
 		this.sinkName = sinkName;
 	}
 	
+	public Valve(String name, String sinkName, float x, float y) {
+		this(name, sinkName);
+		this.x = x;
+		this.y = y;
+	}
+	
 	@Override
 	public void connectSelf(HashMap<String, Component> components) {
 		sink = components.get(sinkName);
 		sink.setSource(this);
+	}
+
+	@Override
+	public List<DrawingLine> getConnectionLines() {
+		if(sink != null) {
+			return Collections.singletonList(new DrawingLine(x, y, sink.x, sink.y));
+		}
+		return null;
 	}
 
 	public double getOpenPercentage() {

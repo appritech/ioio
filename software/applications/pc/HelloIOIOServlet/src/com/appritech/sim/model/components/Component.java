@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.appritech.sim.model.DrawingLine;
+
 public abstract class Component {
 	
 	
@@ -13,8 +15,8 @@ public abstract class Component {
 	private String name;
 	private double trueFlow;
 	
-	private float x;
-	private float y;
+	protected float x;
+	protected float y;
 	
 	public Component(String name) {
 		this.name = name;
@@ -23,6 +25,7 @@ public abstract class Component {
 	public abstract double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond);
 	public abstract double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond);
 	public abstract void setSource(Component source);
+	public abstract List<DrawingLine> getConnectionLines();
 	
 	public void addToComplaintLog(Pump originPump, double flow) {
 		complaintLog.add(new Complaint(originPump, flow));

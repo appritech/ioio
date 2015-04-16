@@ -1,6 +1,10 @@
 package com.appritech.sim.model.components;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+
+import com.appritech.sim.model.DrawingLine;
 
 public class Tank extends Component {
 	private double capacity;
@@ -21,10 +25,24 @@ public class Tank extends Component {
 		this.sinkName = sinkName;
 	}
 	
+	public Tank(String name, double capacity, double currentVolume, String sinkName, float x, float y) {
+		this(name, capacity, currentVolume, sinkName);
+		this.x = x;
+		this.y = y;
+	}
+	
 	@Override
 	public void connectSelf(HashMap<String, Component> components) {
 		sink = components.get(sinkName);
 		sink.setSource(this);
+	}
+
+	@Override
+	public List<DrawingLine> getConnectionLines() {
+		if(sink != null) {
+			return Collections.singletonList(new DrawingLine(x, y, sink.x, sink.y));
+		}
+		return null;
 	}
 
 	public double getCapacity() {

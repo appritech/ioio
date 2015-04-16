@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.appritech.sim.model.DrawingLine;
 import com.appritech.sim.model.components.helper.SplitValve;
 
 public class Splitter extends Component {
@@ -38,6 +39,12 @@ public class Splitter extends Component {
 		this.normWeights = normWeights;
 	}
 	
+	public Splitter(String name, String[] outputNames, float x, float y) {
+		this(name, outputNames);
+		this.x = x;
+		this.y = y;
+	}
+	
 	@Override
 	public void connectSelf(HashMap<String, Component> components) {
 		this.outputs = new ArrayList<SplitValve>(outputNames.length);
@@ -46,6 +53,16 @@ public class Splitter extends Component {
 			outputs.add(new SplitValve(v, normWeights[i], maxWeights[i]));
 			v.setSource(this);
 		}
+	}
+
+	@Override
+	public List<DrawingLine> getConnectionLines() {
+		ArrayList<DrawingLine> ret = new ArrayList<DrawingLine>();
+		for(SplitValve sv : outputs) {
+			Valve v = sv.getValve();
+			ret.add(new DrawingLine(x, y, v.x, v.y));
+		}
+		return ret;
 	}
 
 	public Valve getInput() {
