@@ -2,8 +2,12 @@ package com.appritech.sim.model.components;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+
+import com.appritech.sim.model.DrawingLine;
 
 import com.appritech.sim.model.MimicContainer;
 
@@ -26,6 +30,12 @@ public class Combiner extends Component {
 		inputs = new ArrayList<Valve>();
 	}
 	
+	public Combiner(String name, String outputName, float x, float y) {
+		this(name, outputName);
+		this.x = x;
+		this.y = y;
+	}
+	
 	@Override
 	public void setSource(Component source) {
 		//Don't do anything. Combiners must set their sources manually in 'connectSelf', and they must be defined in their constructor
@@ -37,6 +47,14 @@ public class Combiner extends Component {
 		output = components.get(outputName);
 		
 		output.setSource(this);
+	}
+
+	@Override
+	public List<DrawingLine> getConnectionLines() {
+		if(output != null) {
+			return Collections.singletonList(new DrawingLine(x, y, output.x, output.y));
+		}
+		return null;
 	}
 	
 	public Component getOutput() {

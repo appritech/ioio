@@ -2,6 +2,7 @@ package com.appritech.sim.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,6 +31,10 @@ public class MimicContainer {
 		for(Component c : components.values()) {
 			c.connectSelf(components);
 		}
+	}
+	
+	public Collection<Component> getComponents() {
+		return components.values();
 	}
 
 	public Component getComponent(String name) {

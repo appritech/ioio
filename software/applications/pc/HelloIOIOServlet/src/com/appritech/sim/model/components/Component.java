@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.appritech.sim.model.MimicContainer;
 import com.appritech.sim.model.components.helper.Complaint;
+import com.appritech.sim.model.DrawingLine;
 
 public abstract class Component {
 	
@@ -18,8 +19,8 @@ public abstract class Component {
 	private List<Double> trueFlowVolume = new LinkedList<Double>();
 	private double maxVolume = Double.MAX_VALUE;
 	
-	private float x;
-	private float y;
+	protected float x;
+	protected float y;
 	
 	protected boolean hasMaxVolume = false;
 	public void setMaxVolume(double d) {
@@ -38,6 +39,7 @@ public abstract class Component {
 	public abstract double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal);
 	public abstract double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal);
 	public abstract void setSource(Component source);
+	public abstract List<DrawingLine> getConnectionLines();
 	
 	public void addToComplaintLog(Pump originPump, double volume, MimicContainer mc) {
 		if (hasMaxVolume) {

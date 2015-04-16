@@ -37,6 +37,17 @@
 			stage.addChild(valve);
 		}
 		
+		function drawLine(x1, y1, x2, y2)
+		{
+			var l = new PIXI.Graphics();
+			l.lineStyle(2, 0x000000);
+			
+			l.moveTo(x1 * window.innerWidth, y1 * window.innerHeight);
+			l.lineTo(x2 * window.innerWidth, y2 * window.innerHeight);
+			
+			stage.addChild(l);
+		}
+		
 		function createTank(x, y, width, height, position, rotation, name)
 		{
 			var tank = new PIXI.Graphics();
