@@ -2,6 +2,8 @@ package com.appritech.sim.model.components;
 
 import java.util.HashMap;
 
+import com.appritech.sim.model.MimicContainer;
+
 public class Pump extends Component {
 	
 	private double mcrRating;
@@ -56,13 +58,23 @@ public class Pump extends Component {
 	}
 
 	@Override
-	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond) {
-		return sink.getPossibleFlowDown(originPump, 1, volumePerSecond);
+	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
+		double flowDown = sink.getPossibleFlowDown(originPump, oldMinPercent, volumePerSecond, mc, thisIsTheRealDeal);
+		if (thisIsTheRealDeal) {
+			setTrueFlowPercent(flowDown);
+			setTrueFlowVolume(flowDown * volumePerSecond);
+		}
+		return flowDown;
 	}
 
 	@Override
-	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond) {
-		return source.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond);
+	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
+		double flowUp = source.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond, mc, thisIsTheRealDeal);
+		if (thisIsTheRealDeal) {
+			setTrueFlowPercent(flowUp);
+			setTrueFlowVolume(flowUp * volumePerSecond);
+		}
+		return flowUp;
 	}
 	
 }

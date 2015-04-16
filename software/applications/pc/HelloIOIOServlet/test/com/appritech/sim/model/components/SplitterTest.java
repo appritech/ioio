@@ -6,6 +6,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
+import com.appritech.sim.model.MimicContainer;
 import com.appritech.sim.model.components.helper.SplitValve;
 
 public class SplitterTest {
@@ -19,7 +20,7 @@ public class SplitterTest {
 		SplitValve onlyValve = new SplitValve(steve, 0.5, 0.75);
 		Splitter split = new Splitter("split", null, Arrays.asList(onlyValve));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
 		assertEquals(possibleFlow, 0.75, 0.00005);
 	}
 	
@@ -37,11 +38,11 @@ public class SplitterTest {
 		
 		Splitter split = new Splitter("split", null, Arrays.asList(splitSteve, splitBruce));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
 		assertEquals(possibleFlow, 1.0, 0.00005);
 		
-		assertEquals(steve.getTrueFlow(), 0.4, 0.00005);
-		assertEquals(bruce.getTrueFlow(), 0.6, 0.00005);
+		assertEquals(steve.getTrueFlowPercent(), 0.4, 0.00005);
+		assertEquals(bruce.getTrueFlowPercent(), 0.6, 0.00005);
 		
 	}
 	
@@ -59,11 +60,11 @@ public class SplitterTest {
 		
 		Splitter split = new Splitter("split", null, Arrays.asList(splitSteve, splitBruce));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
 		assertEquals(possibleFlow, 0.9, 0.00005);
 		
-		assertEquals(steve.getTrueFlow(), 0.4, 0.00005);
-		assertEquals(bruce.getTrueFlow(), 0.5, 0.00005);
+		assertEquals(steve.getTrueFlowPercent(), 0.4, 0.00005);
+		assertEquals(bruce.getTrueFlowPercent(), 0.5, 0.00005);
 		
 	}
 	
@@ -85,12 +86,12 @@ public class SplitterTest {
 		
 		Splitter split = new Splitter("split", null, Arrays.asList(splitSteve, splitBruce, splitArcher));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
 		assertEquals(possibleFlow, 1.0, 0.00005);
 		
-		assertEquals(steve.getTrueFlow(), .3, 0.00005);
-		assertEquals(bruce.getTrueFlow(), .5, 0.00005);
-		assertEquals(archer.getTrueFlow(), .2, 0.00005);
+		assertEquals(steve.getTrueFlowPercent(), .3, 0.00005);
+		assertEquals(bruce.getTrueFlowPercent(), .5, 0.00005);
+		assertEquals(archer.getTrueFlowPercent(), .2, 0.00005);
 	}
 
 	@Test
@@ -111,12 +112,12 @@ public class SplitterTest {
 		
 		Splitter split = new Splitter("split", null, Arrays.asList(splitSteve, splitBruce, splitArcher));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
 		assertEquals(possibleFlow, .875, 0.00005);
 		
-		assertEquals(steve.getTrueFlow(), .15, 0.00005);
-		assertEquals(bruce.getTrueFlow(), .5, 0.00005);
-		assertEquals(archer.getTrueFlow(), .225, 0.00005);
+		assertEquals(steve.getTrueFlowPercent(), .15, 0.00005);
+		assertEquals(bruce.getTrueFlowPercent(), .5, 0.00005);
+		assertEquals(archer.getTrueFlowPercent(), .225, 0.00005);
 	}
 
 	@Test
@@ -137,12 +138,12 @@ public class SplitterTest {
 		
 		Splitter split = new Splitter("split", null, Arrays.asList(splitSteve, splitBruce, splitArcher));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
 		assertEquals(possibleFlow, 1, 0.00005);
 		
-		assertEquals(steve.getTrueFlow(), .15/1.35, 0.00005);
-		assertEquals(bruce.getTrueFlow(), 1/1.35, 0.00005);
-		assertEquals(archer.getTrueFlow(), .2/1.35, 0.00005);
+		assertEquals(steve.getTrueFlowPercent(), .15/1.35, 0.00005);
+		assertEquals(bruce.getTrueFlowPercent(), 1/1.35, 0.00005);
+		assertEquals(archer.getTrueFlowPercent(), .2/1.35, 0.00005);
 	}
 	
 }

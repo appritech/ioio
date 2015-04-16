@@ -4,6 +4,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.appritech.sim.model.MimicContainer;
+import com.appritech.sim.model.components.helper.Complaint;
+
 public abstract class Component {
 	
 	
@@ -11,35 +14,58 @@ public abstract class Component {
 	private double currentAnger = 0;
 	private boolean isAngry = false;
 	private String name;
-	private double trueFlow;
+	private List<Double> trueFlowPercent = new LinkedList<Double>();
+	private List<Double> trueFlowVolume = new LinkedList<Double>();
+	private double maxVolume = Double.MAX_VALUE;
 	
 	private float x;
 	private float y;
+	
+	protected boolean hasMaxVolume = false;
+	public void setMaxVolume(double d) {
+		this.maxVolume = d;
+		hasMaxVolume = true;
+	}
+	
+	public double getMaxVolume() {
+		return maxVolume;
+	}
 	
 	public Component(String name) {
 		this.name = name;
 	}
 	
-	public abstract double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond);
-	public abstract double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond);
+	public abstract double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal);
+	public abstract double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal);
 	public abstract void setSource(Component source);
 	
-	public void addToComplaintLog(Pump originPump, double flow) {
-		complaintLog.add(new Complaint(originPump, flow));
-		currentAnger += flow;
-		
-		if (currentAnger > 0) {
-			isAngry = true;
+	public void addToComplaintLog(Pump originPump, double volume, MimicContainer mc) {
+		if (hasMaxVolume) {
+			complaintLog.add(new Complaint(originPump, volume));
+			double oldAnger = currentAnger;
+			currentAnger += volume;
+			
+			if (oldAnger <= maxVolume && currentAnger > maxVolume) {
+				isAngry = true;
+				mc.addAngryComponent(this);
+			}
 		}
 	}
 	
-	public void resetAnger() {
+	public void reset() {
 		complaintLog.clear();
 		currentAnger = 0;
+		trueFlowPercent.clear();
+		trueFlowVolume.clear();
+		isAngry = false;
 	}
 	
 	public boolean isAngry() {
 		return isAngry;
+	}
+	
+	public List<Complaint> getComplaintLog() {
+		return complaintLog;
 	}
 	
 	
@@ -52,12 +78,28 @@ public abstract class Component {
 		this.name = name;
 	}
 
-	public double getTrueFlow() {
-		return trueFlow;
+	public double getTrueFlowPercent() {
+		double flowSum = 0;
+		for (Double d : trueFlowPercent) {
+			flowSum += d;
+		}
+		return flowSum;
 	}
 
-	public void setTrueFlow(double trueFlow) {
-		this.trueFlow = trueFlow;
+	public void setTrueFlowPercent(double trueFlow) {
+		trueFlowPercent.add(trueFlow);
+	}
+
+	public double getTrueFlowVolume() {
+		double volumeSum = 0;
+		for (Double d : trueFlowVolume) {
+			volumeSum += d;
+		}
+		return volumeSum;
+	}
+
+	public void setTrueFlowVolume(double volume) {
+		trueFlowVolume.add(volume);
 	}
 
 	public void setAngry(boolean isAngry) {
@@ -87,35 +129,11 @@ public abstract class Component {
 	public void setValueFromUser(float value) {
 		//This can be overridden. It is a cheater method.
 	}
-
-
-	class Complaint {
-		private Pump originPump;
-		private double flow;
-		
-		public Complaint(Pump originPump, double flow) {
-			this.originPump = originPump;
-			this.flow = flow;
-		}
-
-		public Pump getOriginPump() {
-			return originPump;
-		}
-
-		public void setOriginPump(Pump originPump) {
-			this.originPump = originPump;
-		}
-
-		public double getFlow() {
-			return flow;
-		}
-
-		public void setFlow(double flow) {
-			this.flow = flow;
-		}
-		
+	
+	
+	@Override
+	public String toString() {
+		return name + ": " + getTrueFlowPercent() + ", " + trueFlowPercent + ", " + getTrueFlowVolume() + ", " + trueFlowVolume;
 	}
-	
-	
 
 }

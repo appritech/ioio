@@ -35,7 +35,7 @@ public class WholeModelTest2 {
 		mc.addComponent(new Valve("Ignore2", "s2"));
 		
 		//Valves v7, v8, and v9 all go in between s2 and c3
-		mc.addComponent(new Splitter("s2", new String[] {"v7", "v8", "v9"}));
+		mc.addComponent(new Splitter("s2", new String[] {"v7", "v8", "v9"}, new double[]{.1,.6,1.0}, new double[]{.1,.4,.5}));
 		mc.addComponent(new Valve("v7", "c3"));
 		mc.addComponent(new Valve("v8", "c3"));
 		mc.addComponent(new Valve("v9", "c3"));
@@ -49,9 +49,13 @@ public class WholeModelTest2 {
 		mc.addComponent(new Valve("v11", "t1"));
 		mc.addComponent(new Valve("v12", "t2"));
 		
+		mc.getComponent("v11").setMaxVolume(150);
+		mc.getComponent("v12").setMaxVolume(150);
+		
 		mc.connectComponents();
 		
 		mc.solveMimic();
+		System.out.println(mc);
 	}
 
 }

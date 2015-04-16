@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.appritech.sim.model.MimicContainer;
 import com.appritech.sim.model.components.helper.SplitValve;
 
 public class Splitter extends Component {
@@ -73,24 +74,25 @@ public class Splitter extends Component {
 	}
 	
 	@Override
-	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond) {
+	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
 		
 		double[] maxFlow = new double[outputs.size()];
 		double[] preferredFlow = new double[outputs.size()];
 		double currentSum = 0;
 		double flowToReturn = 0; 
+		ArrayList<Double> trueFlows = new ArrayList<Double>(outputs.size());
 		
 		for (int i = 0; i < outputs.size(); i++) {
 			SplitValve temp = outputs.get(i);
 			double maxToSendDown = Math.min(temp.getMaxWeight(), oldMinPercent);
-			double childMax = temp.getValve().getPossibleFlowDown(originPump, maxToSendDown, volumePerSecond);
+			double childMax = temp.getValve().getPossibleFlowDown(originPump, maxToSendDown, volumePerSecond, mc, false);
 			double currentMaxFlow = Math.min(temp.getMaxWeight(), childMax);
 			maxFlow[i] = currentMaxFlow;
 			double prefFlow = Math.min(temp.getNormalWeight(), currentMaxFlow);
 			preferredFlow[i] = prefFlow;
 			currentSum += prefFlow;
 			
-			temp.getValve().setTrueFlow(prefFlow);
+			trueFlows.add(prefFlow);
 			flowToReturn += prefFlow;
 		}
 		
@@ -107,21 +109,34 @@ public class Splitter extends Component {
 				SplitValve v = outputs.get(i);
 				double trueFlow = oldMinPercent * (maxFlow[i] / sumOfMaxFlow);
 				trueFlow = Math.min(trueFlow, v.getMaxWeight());
-				v.getValve().setTrueFlow(trueFlow);
+				trueFlows.set(i, trueFlow);
 				flowToReturn += trueFlow;
 			}
 		}
 		
 		double theRealFlow = Math.min(flowToReturn, oldMinPercent);
-		
-		addToComplaintLog(originPump, theRealFlow);
+		if (thisIsTheRealDeal) {
+			setTrueFlowPercent(theRealFlow);
+			setTrueFlowVolume(theRealFlow * volumePerSecond);
+			addToComplaintLog(originPump, theRealFlow * volumePerSecond, mc);
+			
+			for (int i = 0; i < outputs.size(); i++) {
+				Valve v = outputs.get(i).getValve();
+				//Note: We're doign this so we can set these values. 
+				v.getPossibleFlowDown(originPump, trueFlows.get(i), volumePerSecond, mc, true);
+			}
+		}
 		return theRealFlow;
 	}
 
 	@Override
-	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond) {
-		double flowUp = input.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond);
-		addToComplaintLog(originPump, flowUp);
+	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
+		double flowUp = input.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond, mc, thisIsTheRealDeal);
+		if (thisIsTheRealDeal) {
+			addToComplaintLog(originPump, flowUp * volumePerSecond, mc);
+			setTrueFlowPercent(flowUp);
+			setTrueFlowVolume(flowUp * volumePerSecond);
+		}
 		return flowUp;
 	}
 

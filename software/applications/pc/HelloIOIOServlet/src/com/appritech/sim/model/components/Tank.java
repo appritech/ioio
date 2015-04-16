@@ -2,6 +2,8 @@ package com.appritech.sim.model.components;
 
 import java.util.HashMap;
 
+import com.appritech.sim.model.MimicContainer;
+
 public class Tank extends Component {
 	private double capacity;
 	private double currentVolume;
@@ -60,23 +62,39 @@ public class Tank extends Component {
 	}
 
 	@Override
-	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond) {
+	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean isTheRealDeal) {
 		if (capacity <= currentVolume) {
+			if (isTheRealDeal) {
+				setTrueFlowPercent(0);
+				setTrueFlowVolume(0);
+			}
 			return 0;
 		}
 		
 		if (capacity - currentVolume < oldMin * volumePerSecond) {
 			double remainingSpace = capacity - currentVolume;
 			double percentAvailable = remainingSpace / volumePerSecond;
+			if (isTheRealDeal) {
+				setTrueFlowPercent(percentAvailable);
+				setTrueFlowVolume(percentAvailable * volumePerSecond);	
+			}
 			return percentAvailable;
 		}
 		
+		if (isTheRealDeal) {
+			setTrueFlowPercent(oldMin);
+			setTrueFlowVolume(oldMin * volumePerSecond);
+		}
 		return oldMin;
 	}
 
 	@Override
-	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond) {
+	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean isTheRealDeal) {
 		if (currentVolume <= 0) {
+			if (isTheRealDeal) {
+				setTrueFlowPercent(0);
+				setTrueFlowVolume(0);
+			}
 			return 0;
 		}
 		
@@ -85,9 +103,17 @@ public class Tank extends Component {
 		if (currentVolume < oldMin * volumePerSecond) {
 			double remainingVolume = currentVolume;
 			double percentAvailable = remainingVolume / volumePerSecond;
+			if (isTheRealDeal) {
+				setTrueFlowPercent(percentAvailable * -1);
+				setTrueFlowVolume(percentAvailable * volumePerSecond * -1);
+			}
 			return percentAvailable;
 		}
 		
+		if (isTheRealDeal) {
+			setTrueFlowPercent(oldMin * -1);
+			setTrueFlowVolume(oldMin * volumePerSecond * -1);
+		}
 		return oldMin;
 	}
 	

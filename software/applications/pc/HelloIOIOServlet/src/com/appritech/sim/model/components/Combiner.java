@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import com.appritech.sim.model.MimicContainer;
+
 public class Combiner extends Component {
 	
 	private Collection<Valve> inputs;
@@ -61,42 +63,50 @@ public class Combiner extends Component {
 	}
 	
 	@Override
-	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond) {
-		double pushThrough = output.getPossibleFlowDown(originPump, oldMinPercent, volumePerSecond);
-		addToComplaintLog(originPump, pushThrough);
+	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
+		double pushThrough = output.getPossibleFlowDown(originPump, oldMinPercent, volumePerSecond, mc, thisIsTheRealDeal);
+		if (thisIsTheRealDeal) {
+			addToComplaintLog(originPump, pushThrough * volumePerSecond, mc);
+			setTrueFlowPercent(pushThrough);
+			setTrueFlowVolume(pushThrough * volumePerSecond);
+		}
 		return pushThrough;
 	}
 
 	//Note: This is not quite the inverse of splitter.getPossibleFlowDown().
 	// But we could make it, if we wanted it to be.
 	@Override
-	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond) {
-		//Get the sum of each input valve.
-		//return the min of them all.
-		
+	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
 		double[] flowArray = new double[inputs.size()];
 		
 		double totalPossibleFlow = 0;
 		Iterator<Valve> iter = inputs.iterator();
 		for (int i = 0; i < inputs.size(); i++) {
 			Valve v = iter.next();
-			double flow = v.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond);
+			double flow = v.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond, mc, false);
 			flowArray[i] = flow;
 			totalPossibleFlow += flow;
 			
 		}
-		
+		double ratio = 1;
 		if (totalPossibleFlow > 1) {
-			double ratio = 1 / totalPossibleFlow;
-			Iterator<Valve> iter2 = inputs.iterator();
-			for (int i = 0; i < inputs.size(); i++) {
-				Valve v = iter2.next();
-				v.setTrueFlow(flowArray[i] * ratio);
-			}
+			ratio = 1 / totalPossibleFlow;
 		}
 		
 		double trueFlow = Math.min(1, totalPossibleFlow);
-		addToComplaintLog(originPump, trueFlow);
-		return Math.min(1, totalPossibleFlow);
+		if (thisIsTheRealDeal) {
+			Iterator<Valve> iterator = inputs.iterator();
+			for (int i = 0; i < inputs.size(); i++) {
+				Valve v = iterator.next();
+				//Note: We're sending the TRUE flow of this valve down the line, just so we will populate 
+				// The true flow and true pressure appropriately. 
+				v.getPossibleFlowUp(originPump, flowArray[i] * ratio, volumePerSecond, mc, true);
+			}
+			trueFlow = trueFlow * ratio;
+			setTrueFlowPercent(trueFlow);
+			setTrueFlowVolume(trueFlow * volumePerSecond);
+			addToComplaintLog(originPump, trueFlow * volumePerSecond, mc);
+		}
+		return Math.min(oldMinPercent, Math.min(trueFlow, totalPossibleFlow));
 	}
 }
