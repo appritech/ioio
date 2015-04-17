@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.appritech.sim.model.MimicContainer;
 import com.appritech.sim.model.components.helper.SplitValve;
 
 public class WholeModelTest {
@@ -69,16 +70,35 @@ public class WholeModelTest {
 		
 		List<Component> allComponents = Arrays.asList(t1, t2, v1, v2, c1, s1, totalIgnoreValve, totalIgnoreValve2, v3, v4, p1, p2, v6, v5, c2, s2, v7, v8, v9, c3, v10, s3, v11, v12);
 		
-		double p1Down = p1.getPossibleFlowDown(p1, 1.0, p1.getMcrRating());
-		double p1Up = p1.getPossibleFlowUp(p1, 1.0, p1.getMcrRating());
+		MimicContainer mc = new MimicContainer();
+			
+		//Algorithm: 
+		// Find the min of p1Down and p1Up.
+		// Then, send that min up and down both of them. 
+		// That should totally be the right answer. 
 		
-		double p2Down = p2.getPossibleFlowDown(p2, 1.0, p2.getMcrRating());
-		double p2Up = p2.getPossibleFlowUp(p2, 1.0, p2.getMcrRating());
+		double p1Down = p1.getPossibleFlowDown(p1, 1.0, p1.getMcrRating(), mc, false);
+		double p1Up = p1.getPossibleFlowUp(p1, 1.0, p1.getMcrRating(), mc, false);
+		
+		double minP1 = Math.min(p1Down, p1Up);
+		p1.getPossibleFlowDown(p1, minP1, p1.getMcrRating(), mc, true);
+		p1.getPossibleFlowUp(p1, minP1, p1.getMcrRating(), mc, true);
+		
+		double p2Down = p2.getPossibleFlowDown(p2, 1.0, p2.getMcrRating(), mc, false);
+		double p2Up = p2.getPossibleFlowUp(p2, 1.0, p2.getMcrRating(), mc, false);
+		double minP2 = Math.min(p2Down, p2Up);
+		
+		p2.getPossibleFlowDown(p2, minP2, p2.getMcrRating(), mc, true);
+		p2.getPossibleFlowUp(p2, minP2, p2.getMcrRating(), mc, true);
 		
 		System.out.println("p1 down = " + p1Down);
 		System.out.println("p1 up = " + p1Up);
 		System.out.println("p2 down = " + p2Down);
 		System.out.println("p2 up = " + p2Up);
+		
+		for (Component c : allComponents) {
+			System.out.println(c);
+		}
 	
 		System.out.println("Holy moly, we made it through");
 	}

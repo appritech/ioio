@@ -1,14 +1,15 @@
 package com.appritech.sim.model.components;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import com.appritech.sim.model.MimicContainer;
 
-public class WholeModelTest2 {
+public class SmallTest {
 
 	@Test
 	public void test() {
-		
 		MimicContainer mc = new MimicContainer();
 		
 		//Tanks t1 and t2 are the base sources, and go to v1 and v2 directly (return comes back through v11 and v12)

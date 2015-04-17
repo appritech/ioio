@@ -6,11 +6,12 @@ import java.util.List;
 
 import com.appritech.sim.model.DrawingLine;
 
+import com.appritech.sim.model.MimicContainer;
+
 public class Valve extends Component {
 	
 	private double openPercentage = 1.0;
 	private double maxFlow = Double.MAX_VALUE;
-	private double trueFlow = 0; 
 	
 	private Component source;
 	private Component sink;
@@ -24,6 +25,10 @@ public class Valve extends Component {
 	public Valve(String name, String sinkName) {
 		super(name);
 		this.sinkName = sinkName;
+	}
+	
+	public void setMaximumVolume(double d) {
+		setMaxVolume(d);
 	}
 	
 	public Valve(String name, String sinkName, float x, float y) {
@@ -62,14 +67,6 @@ public class Valve extends Component {
 		this.maxFlow = maxFlow;
 	}
 	
-	public void setTrueFlow(double d) {
-		this.trueFlow = d;
-	}
-	
-	public double getTrueFlow() {
-		return trueFlow;
-	}
-	
 	public void setSink(Component sink) {
 		this.sink = sink;
 	}
@@ -79,19 +76,66 @@ public class Valve extends Component {
 	}
 
 	@Override
-	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond) {
-		double currentMin = openPercentage < oldMin ? openPercentage : oldMin;
-		double newMin = sink.getPossibleFlowDown(originPump, currentMin, volumePerSecond);
-		addToComplaintLog(originPump, newMin);
+	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
+		double currentMin = openPercentage < oldMin ? Double.valueOf(openPercentage) : Double.valueOf(oldMin);
+		if (mc.getOverrideMap().containsKey(this) && thisIsTheRealDeal == false) {
+			System.out.println(mc.getOverrideMap().get(this));
+			currentMin = currentMin * mc.getOverrideMap().get(this);
+		}
+		
+		double newMin = 0;
+		if (hasMaxVolume) {
+			newMin = sink.getPossibleFlowDown(originPump, currentMin, volumePerSecond, mc, false);
+			
+			if (newMin * volumePerSecond > getMaxVolume() && thisIsTheRealDeal) {
+				double ratio = getMaxVolume() / (newMin * volumePerSecond);
+				newMin = sink.getPossibleFlowDown(originPump, currentMin * ratio, volumePerSecond, mc, thisIsTheRealDeal);
+			}
+		} else {
+			newMin = sink.getPossibleFlowDown(originPump, currentMin, volumePerSecond, mc, thisIsTheRealDeal);
+		}
+		
+		if (thisIsTheRealDeal) {
+			addToComplaintLog(originPump, newMin * volumePerSecond, mc);
+			setTrueFlowPercent(newMin);
+			setTrueFlowVolume(newMin * volumePerSecond);
+		}
+		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
+		
+		
 		return newMin;
 	}
 
 	@Override
-	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond) {
-		double currentMin = openPercentage < oldMin ? openPercentage : oldMin;
-		double newMin = source.getPossibleFlowUp(originPump, currentMin, volumePerSecond);
-		addToComplaintLog(originPump, newMin);
+	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
+		double currentMin = openPercentage < oldMin ? Double.valueOf(openPercentage) : Double.valueOf(oldMin);
+		if (mc.getOverrideMap().containsKey(this) && thisIsTheRealDeal == false) {
+			System.out.println(mc.getOverrideMap().get(this));
+			currentMin = currentMin * mc.getOverrideMap().get(this);
+		}
+		
+		double newMin = 0;
+		if (hasMaxVolume) {
+			newMin = source.getPossibleFlowUp(originPump, currentMin, volumePerSecond, mc, false);
+			
+			if (newMin * volumePerSecond > getMaxVolume() && thisIsTheRealDeal) {
+				double ratio = getMaxVolume() / (newMin * volumePerSecond);
+				newMin = source.getPossibleFlowUp(originPump, currentMin * ratio, volumePerSecond, mc, thisIsTheRealDeal);
+			}
+		} else {
+			newMin = source.getPossibleFlowUp(originPump, currentMin, volumePerSecond, mc, thisIsTheRealDeal);
+		}
+		
+		if (thisIsTheRealDeal) {
+			addToComplaintLog(originPump, newMin * volumePerSecond, mc);
+			setTrueFlowPercent(newMin);
+			setTrueFlowVolume(newMin * volumePerSecond);
+		}
+		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
+		
+		
 		return newMin;
+
 	}
 	
 }

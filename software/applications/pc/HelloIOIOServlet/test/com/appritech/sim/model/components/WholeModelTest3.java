@@ -1,10 +1,12 @@
 package com.appritech.sim.model.components;
 
+import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import com.appritech.sim.model.MimicContainer;
 
-public class WholeModelTest2 {
+public class WholeModelTest3 {
 
 	@Test
 	public void test() {
@@ -51,6 +53,10 @@ public class WholeModelTest2 {
 		
 		mc.getComponent("v11").setMaxVolume(150);
 		mc.getComponent("v12").setMaxVolume(150);
+		
+		//Valve v11 = (Valve) mc.getComponent("v11");
+		//v11.setOpenPercentage(0);
+		((Valve) mc.getComponent("v9")).setOpenPercentage(0);
 		
 		mc.connectComponents();
 		
