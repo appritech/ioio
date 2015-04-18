@@ -1,23 +1,21 @@
 package com.appritech.sim.model;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.appritech.sim.model.components.Combiner;
 import com.appritech.sim.model.components.Component;
 import com.appritech.sim.model.components.Pump;
-import com.appritech.sim.model.components.helper.Complaint;
+import com.appritech.sim.model.components.helper.AngerStory;
 
 public class MimicContainer {
 
 	private HashMap<String, Component> components = new HashMap<String, Component>();
 	private HashMap<String, Pump> pumps = new HashMap<String, Pump>();					//This could probably be a set, but we might want to find them...
-	private Map<Component, Double> overrideMap = new HashMap<Component, Double>();
+	private Map<Component, AngerStory> overrideMap = new HashMap<Component, AngerStory>();
 	
 	public void addComponent(Component c) {
 		if(c instanceof Pump) {
@@ -40,41 +38,70 @@ public class MimicContainer {
 		return components.get(name);
 	}
 	
-	private void resolveAnger(Component c) {
+	private void resolveAnger(Component c, List<Pump> pumpList, List<Double> minimumFlow) {
 		
 		if(c instanceof Combiner) {
-			resolveCombinerAnger((Combiner)c);
+			resolveCombinerAnger((Combiner)c, pumpList, minimumFlow);
 			return;
 		}
 		
 		HashMap<Pump, Double> log = c.getComplaintLog();
-//		double sum = 0;
-//		for (Complaint complaint : log) {
-//			sum += complaint.getFlow();
-//		}
-		double sum = log.values().stream().reduce(0.0, Double::sum);
+		double sum = 0;
+		for (Double d : log.values()) {
+			sum += d;
+		}
+//		double sum = log.values().stream().reduce(0.0, Double::sum);
 		
 		if (sum > c.getMaxVolume()) {
 			double ratio = c.getMaxVolume() / sum;
-			if(overrideMap.containsKey(c))
-				ratio *= overrideMap.get(c);
-			overrideMap.put(c, ratio);
+			//We need to create a map of pumps.
+			
+			for (int i = 0; i < pumpList.size(); i++) {
+				Pump p = pumpList.get(i);
+				double minFlow = minimumFlow.get(i);
+				
+				if (!overrideMap.containsKey(c)) {
+					overrideMap.put(c, new AngerStory());
+				}
+				overrideMap.get(c).addEntry(p, p.getMcrRating() * minFlow, ratio);				
+			}
 		}
 		c.setNumTimesAngerResolved(c.getNumTimesAngerResolved() + 1);
 	}
 	
-	private void resolveCombinerAnger(Combiner c) {
+	private void resolveCombinerAnger(Combiner c, List<Pump> pumpList, List<Double> minimumFlow) {
+//		double sum = c.getInputFlowVolumeSum();
+//		if(sum > c.getTrueFlowVolume()) {
+//			double ratio = c.getTrueFlowVolume() / sum;
+//			if(overrideMap.containsKey(c))
+//				ratio *= overrideMap.get(c);
+//			overrideMap.put(c, ratio);
+//		}
+//		c.setNumTimesAngerResolved(c.getNumTimesAngerResolved() + 1);
+		
+		HashMap<Pump, Double> log = c.getComplaintLog();
 		double sum = c.getInputFlowVolumeSum();
-		if(sum > c.getTrueFlowVolume()) {
+//		double sum = log.values().stream().reduce(0.0, Double::sum);
+		
+		if (sum > c.getTrueFlowVolume()) {
 			double ratio = c.getTrueFlowVolume() / sum;
-			if(overrideMap.containsKey(c))
-				ratio *= overrideMap.get(c);
-			overrideMap.put(c, ratio);
+			//We need to create a map of pumps.
+			
+			for (int i = 0; i < pumpList.size(); i++) {
+				Pump p = pumpList.get(i);
+				double minFlow = minimumFlow.get(i);
+				
+				if (!overrideMap.containsKey(c)) {
+					overrideMap.put(c, new AngerStory());
+				}
+				overrideMap.get(c).addEntry(p, p.getMcrRating() * minFlow, ratio);				
+			}
 		}
 		c.setNumTimesAngerResolved(c.getNumTimesAngerResolved() + 1);
 	}
 
-	public Map<Component, Double> getOverrideMap() {
+	//Override map : Map<Component, 
+	public Map<Component, AngerStory> getOverrideMap() {
 		return overrideMap;
 	}
 	
@@ -88,7 +115,9 @@ public class MimicContainer {
 		double[] resultList = new double[pumps.size()];
 		
 		for (int i = 0; i < pumps.size(); i++) {
-			resultList[i] = pumps.get(i).getPossibleFlowDown(pumps.get(i), flows.get(i), pumps.get(i).getMcrRating(), this, true, null);				
+			double ratio = flows.get(i);
+			double flowRate = pumps.get(i).getMcrRating() * ratio;
+			resultList[i] = pumps.get(i).getPossibleFlowDown(pumps.get(i), 1.0, flowRate, this, true, null) * ratio;				
 		}
 		
 		return resultList;
@@ -122,40 +151,47 @@ public class MimicContainer {
 		double[] resultList = new double[pumps.size()];
 		
 		for (int i = 0; i < pumps.size(); i++) {
-			resultList[i] = pumps.get(i).getPossibleFlowUp(pumps.get(i), flows.get(i), pumps.get(i).getMcrRating(), this, true, null);				
+			double ratio = flows.get(i);
+			double flowRate = pumps.get(i).getMcrRating() * ratio;
+			resultList[i] = pumps.get(i).getPossibleFlowUp(pumps.get(i), 1.0, flowRate, this, true, null) * ratio;				
 		}
 		
 		return resultList;
 	}
 	
 	private void resetOverrideMapAndOtherStuff() {
-		overrideMap = new HashMap<Component, Double>();
+		overrideMap = new HashMap<Component, AngerStory>();
 		for(Component c : components.values()) {
 			c.setNumTimesAngerResolved(0);
 		}
 	}
 	
 	public void solveMimic() {
-		Pump p1 = pumps.get("p1");
-		Pump p2 = pumps.get("p2");
-		
+
 		resetOverrideMapAndOtherStuff();				//Reset anything since last iteration
 		
 		boolean isAngry = true;			//Assume the worst of the world (i.e. make sure we get into the while loop at least once)
-		List<Double> minimumFlows = Arrays.asList(1.0, 1.0);
+		List<Double> minimumFlows = new ArrayList<Double>(pumps.values().size());
+		for (int i = 0; i < pumps.values().size(); i++) {
+			minimumFlows.add(1.0);
+		}
+		
+		List<Pump> pumpList = new ArrayList<Pump>(pumps.values());
 		while(isAngry) {
-			double[] downResult = computeDown(Arrays.asList(p1, p2), minimumFlows);
-			double[] upResult = computeUp(Arrays.asList(p1, p2), minimumFlows);
+			double[] downResult = computeDown(pumpList, minimumFlows);
+			double[] upResult = computeUp(pumpList, minimumFlows);
 			
 			Component grumpyHead = getNextAngryComponent();
 			if (grumpyHead != null) {
 				isAngry = true;
-				resolveAnger(grumpyHead);
+				resolveAnger(grumpyHead, pumpList, minimumFlows);
 				prepForTryAgain();
+//				resetOverrideMapAndOtherStuff();				//Reset anything since last iteration
 			}
 			else {
 				isAngry = false;
 			}
+			
 			
 			for (int i = 0; i < downResult.length; i++) {
 				minimumFlows.set(i, Math.min(downResult[i], upResult[i]));
@@ -164,11 +200,28 @@ public class MimicContainer {
 		
 		System.out.println("Round one: " + this);
 		
-		
+//		resetOverrideMapAndOtherStuff();				//Reset anything since last iteration
 		prepForTryAgain();
-		computeDown(Arrays.asList(p1, p2), minimumFlows);
-		computeUp(Arrays.asList(p1, p2), minimumFlows);
-		
+		isAngry = true;
+		//while(isAngry) {
+			double[] downResult = computeDown(new ArrayList<Pump>(pumps.values()), minimumFlows);
+			double[] upResult = computeUp(new ArrayList<Pump>(pumps.values()), minimumFlows);
+			
+//			Component grumpyHead = getNextAngryComponent();
+//			if (grumpyHead != null) {
+//				isAngry = true;
+//				resolveAnger(grumpyHead, pumpList, minimumFlows);
+//				prepForTryAgain();
+//			}
+//			else {
+//				isAngry = false;
+//			}
+//			
+//			
+//			for (int i = 0; i < downResult.length; i++) {
+//				minimumFlows.set(i, Math.min(downResult[i], upResult[i]));
+//			}
+		//}
 		System.out.println("Round two: " + this);
 		
 //		double p1Down = computeDown(p1, 1.0);
