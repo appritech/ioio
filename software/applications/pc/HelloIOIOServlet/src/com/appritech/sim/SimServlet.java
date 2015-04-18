@@ -57,14 +57,8 @@ public class SimServlet extends HttpServlet {
 //			out.println("createPump(0.2, 0.2, 0.02, " + Float.toString(DataMap.getFloatVal("P1")) + ", 0, \"P1\");");
 //			out.println("createTank(0.3, 0.3, 0.05, 0.1, " + Float.toString(DataMap.getFloatVal("T1")) + ", 0, \"T1\");");
 			
+			//Draw lines first, so that they are behind.
 			for(Component c : PhysicsModel.getInstance().getMimicContainer().getComponents()) {
-				if(c instanceof Valve)
-					out.println(String.format("createValve(%f, %f, 0.015, 0.015, %f, 0, \"%s\");", c.getX(), c.getY(), DataMap.getFloatVal(c.getName()), c.getName()));
-				else if(c instanceof Pump)
-					out.println(String.format("createPump(%f, %f, 0.02, %f, 0, \"%s\");", c.getX(), c.getY(), DataMap.getFloatVal(c.getName()), c.getName()));
-				else if(c instanceof Tank)
-					out.println(String.format("createTank(%f, %f, 0.05, 0.1, %f, 0, \"%s\");", c.getX(), c.getY(), DataMap.getFloatVal(c.getName()), c.getName()));
-				
 				List<DrawingLine> lines = c.getConnectionLines();
 				if(lines != null) {
 					for(DrawingLine dl : lines) {
@@ -72,6 +66,15 @@ public class SimServlet extends HttpServlet {
 						out.println(String.format("drawLine(%f, %f, %f, %f);", dl.x1, dl.y1, dl.x2, dl.y2));
 					}
 				}
+			}
+			
+			for(Component c : PhysicsModel.getInstance().getMimicContainer().getComponents()) {
+				if(c instanceof Valve)
+					out.println(String.format("createValve(%f, %f, 0.015, 0.015, %f, 0, \"%s\");", c.getX(), c.getY(), DataMap.getFloatVal(c.getName()), c.getName()));
+				else if(c instanceof Pump)
+					out.println(String.format("createPump(%f, %f, 0.02, %f, 0, \"%s\");", c.getX(), c.getY(), DataMap.getFloatVal(c.getName()), c.getName()));
+				else if(c instanceof Tank)
+					out.println(String.format("createTank(%f, %f, 0.05, 0.1, %f, 0, \"%s\");", c.getX(), c.getY(), DataMap.getFloatVal(c.getName()), c.getName()));
 			}
 			
 			out.println(getFooter());

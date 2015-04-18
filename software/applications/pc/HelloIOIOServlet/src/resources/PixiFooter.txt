@@ -31,8 +31,8 @@
 			valve.lineTo(0 - width, 0 - height);
 			valve.endFill();
 			
-			valve.position.x = x * window.innerWidth;
-			valve.position.y = y * window.innerHeight;
+			valve.position.x = (x + w/2) * window.innerWidth;
+			valve.position.y = (y + h/2) * window.innerHeight;
 			valve.rotation = rotation;
 			stage.addChild(valve);
 		}
@@ -50,6 +50,11 @@
 		
 		function createTank(x, y, width, height, position, rotation, name)
 		{
+			if(position > 1.0)
+				position = 1.0;
+			if(position < 0.0)
+				position = 0.0;
+			
 			var tank = new PIXI.Graphics();
 			tank.name = name;
 			makeEditable(tank);
@@ -64,8 +69,8 @@
 			tank.endFill();
 			
 			tank.rotation = rotation;
-			tank.position.x = x * window.innerWidth;
-			tank.position.y = y * window.innerHeight;
+			tank.position.x = (x - width/2) * window.innerWidth;
+			tank.position.y = (y - height/2) * window.innerHeight;
 			stage.addChild(tank);
 		}
 		
