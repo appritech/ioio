@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.appritech.sim.model.components.Combiner;
 import com.appritech.sim.model.components.Component;
 import com.appritech.sim.model.components.Pump;
 import com.appritech.sim.model.components.helper.Complaint;
@@ -40,6 +41,12 @@ public class MimicContainer {
 	}
 	
 	private void resolveAnger(Component c) {
+		
+		if(c instanceof Combiner) {
+			resolveCombinerAnger((Combiner)c);
+			return;
+		}
+		
 		HashMap<Pump, Double> log = c.getComplaintLog();
 //		double sum = 0;
 //		for (Complaint complaint : log) {
@@ -56,6 +63,17 @@ public class MimicContainer {
 		c.setNumTimesAngerResolved(c.getNumTimesAngerResolved() + 1);
 	}
 	
+	private void resolveCombinerAnger(Combiner c) {
+		double sum = c.getInputFlowVolumeSum();
+		if(sum > c.getTrueFlowVolume()) {
+			double ratio = c.getTrueFlowVolume() / sum;
+			if(overrideMap.containsKey(c))
+				ratio *= overrideMap.get(c);
+			overrideMap.put(c, ratio);
+		}
+		c.setNumTimesAngerResolved(c.getNumTimesAngerResolved() + 1);
+	}
+
 	public Map<Component, Double> getOverrideMap() {
 		return overrideMap;
 	}
@@ -88,6 +106,12 @@ public class MimicContainer {
 				else if(c.getNumTimesAngerResolved() < nextAngryComponent.getNumTimesAngerResolved()) {
 					//If this has a lower number, then use it instead.
 					nextAngryComponent = c;
+				}
+				else if(c.getNumTimesAngerResolved() == nextAngryComponent.getNumTimesAngerResolved()) {
+					if(nextAngryComponent instanceof Combiner) {
+						//Lets do combiners closer to the end...
+						nextAngryComponent = c;
+					}
 				}
 			}
 		}

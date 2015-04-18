@@ -64,7 +64,7 @@ public abstract class Component {
 		isAngry = false;
 	}
 	
-	//WARNING - This class overridden in Valve.java to include percent open
+	//WARNING - This method overridden in Combiner.java to inblude sums of inputs
 	public boolean isAngry() {
 		//Calculating anger as we go is a pain, and I can't get it to work... so let's just calculate it after trueFlowVolume is set.
 		if(maxVolume <= 0)
@@ -96,7 +96,8 @@ public abstract class Component {
 	}
 
 	public double getTrueFlowVolume() {
-		return trueFlowVolume.values().stream().reduce(0.0, Double::sum);
+		double sum = trueFlowVolume.values().stream().reduce(0.0, Double::sum);
+		return sum;
 	}
 
 	public void setTrueFlowVolume(Pump p, double volume) {
