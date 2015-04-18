@@ -91,7 +91,7 @@ public class Splitter extends Component {
 	}
 	
 	@Override
-	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
+	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component input) {
 		
 		double[] maxFlow = new double[outputs.size()];
 		double[] preferredFlow = new double[outputs.size()];
@@ -99,13 +99,16 @@ public class Splitter extends Component {
 		double flowToReturn = 0; 
 		ArrayList<Double> trueFlows = new ArrayList<Double>(outputs.size());
 		
+		if("s3".equals(this.getName()) && thisIsTheRealDeal && oldMinPercent == 1.0)
+			System.out.println("asdf");
+		
 		for (int i = 0; i < outputs.size(); i++) {
 			SplitValve temp = outputs.get(i);
 			double maxToSendDown = Math.min(temp.getMaxWeight(), oldMinPercent);
-			double childMax = temp.getValve().getPossibleFlowDown(originPump, maxToSendDown, volumePerSecond, mc, false);
+			double childMax = temp.getValve().getPossibleFlowDown(originPump, maxToSendDown, volumePerSecond, mc, false, this);
 			double currentMaxFlow = Math.min(temp.getMaxWeight(), childMax);
 			maxFlow[i] = currentMaxFlow;
-			double prefFlow = Math.min(temp.getNormalWeight(), currentMaxFlow);
+			double prefFlow = Math.min(temp.getNormalWeight(), currentMaxFlow) * oldMinPercent;
 			preferredFlow[i] = prefFlow;
 			currentSum += prefFlow;
 			
@@ -114,7 +117,7 @@ public class Splitter extends Component {
 		}
 		
 		
-		if (currentSum > 1) { //We need someone to go above their comfort level.
+		if (currentSum < oldMinPercent) { //We need someone to go above their comfort level.
 			double sumOfMaxFlow = 0;
 			for (double d : maxFlow) {
 				sumOfMaxFlow += d;
@@ -125,6 +128,15 @@ public class Splitter extends Component {
 			for (int i = 0; i < outputs.size(); i++) {
 				SplitValve v = outputs.get(i);
 				double trueFlow = oldMinPercent * (maxFlow[i] / sumOfMaxFlow);
+				if(maxFlow[i] == 0.0) {
+					trueFlow = 0.0;			//Handle this by itself, since sumOfMaxFlow is also 0, and we don't want to divide by zero
+				}
+				else if(sumOfMaxFlow == 0.0) {
+					throw new RuntimeException("Shouldn't divide by zero");
+				}
+				else {
+					trueFlow = oldMinPercent * (maxFlow[i] / sumOfMaxFlow);
+				}
 				trueFlow = Math.min(trueFlow, v.getMaxWeight());
 				trueFlows.set(i, trueFlow);
 				flowToReturn += trueFlow;
@@ -132,27 +144,27 @@ public class Splitter extends Component {
 		}
 		
 		double theRealFlow = Math.min(flowToReturn, oldMinPercent);
+		addToComplaintLog(originPump, theRealFlow * volumePerSecond, mc);
 		if (thisIsTheRealDeal) {
-			setTrueFlowPercent(theRealFlow);
-			setTrueFlowVolume(theRealFlow * volumePerSecond);
-			addToComplaintLog(originPump, theRealFlow * volumePerSecond, mc);
+			setTrueFlowPercent(originPump, theRealFlow);
+			setTrueFlowVolume(originPump, theRealFlow * volumePerSecond);
 			
 			for (int i = 0; i < outputs.size(); i++) {
 				Valve v = outputs.get(i).getValve();
 				//Note: We're doign this so we can set these values. 
-				v.getPossibleFlowDown(originPump, trueFlows.get(i), volumePerSecond, mc, true);
+				v.getPossibleFlowDown(originPump, trueFlows.get(i), volumePerSecond, mc, true, this);
 			}
 		}
 		return theRealFlow;
 	}
 
 	@Override
-	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
-		double flowUp = input.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond, mc, thisIsTheRealDeal);
+	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component output) {
+		double flowUp = input.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond, mc, thisIsTheRealDeal, this);
+		addToComplaintLog(originPump, flowUp * volumePerSecond, mc);
 		if (thisIsTheRealDeal) {
-			addToComplaintLog(originPump, flowUp * volumePerSecond, mc);
-			setTrueFlowPercent(flowUp);
-			setTrueFlowVolume(flowUp * volumePerSecond);
+			setTrueFlowPercent(originPump, flowUp);
+			setTrueFlowVolume(originPump, flowUp * volumePerSecond);
 		}
 		return flowUp;
 	}

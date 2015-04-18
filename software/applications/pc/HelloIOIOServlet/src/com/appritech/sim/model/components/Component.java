@@ -11,13 +11,13 @@ import com.appritech.sim.model.DrawingLine;
 public abstract class Component {
 	
 	
-	private List<Complaint> complaintLog = new LinkedList<Complaint>();
+	private HashMap<Pump, Double> complaintLog = new HashMap<Pump, Double>();
 	private double currentAnger = 0;
 	private boolean isAngry = false;
 	private String name;
-	private List<Double> trueFlowPercent = new LinkedList<Double>();
-	private List<Double> trueFlowVolume = new LinkedList<Double>();
-	private double maxVolume = Double.MAX_VALUE;
+	private HashMap<Pump, Double> trueFlowPercent = new HashMap<Pump, Double>();
+	private HashMap<Pump, Double> trueFlowVolume = new HashMap<Pump, Double>();
+	protected double maxVolume = Double.MAX_VALUE;
 	
 	protected float x;
 	protected float y;
@@ -36,20 +36,21 @@ public abstract class Component {
 		this.name = name;
 	}
 	
-	public abstract double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal);
-	public abstract double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal);
+	public abstract double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component input);
+	public abstract double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component output);
 	public abstract void setSource(Component source);
 	public abstract List<DrawingLine> getConnectionLines();
 	
 	public void addToComplaintLog(Pump originPump, double volume, MimicContainer mc) {
 		if (hasMaxVolume) {
-			complaintLog.add(new Complaint(originPump, volume));
-			double oldAnger = currentAnger;
+			complaintLog.put(originPump, volume);
 			currentAnger += volume;
 			
-			if (oldAnger <= maxVolume && currentAnger > maxVolume) {
+			if (currentAnger > maxVolume) {
 				isAngry = true;
-				mc.addAngryComponent(this);
+			}
+			else {
+				isAngry = false;
 			}
 		}
 	}
@@ -62,11 +63,16 @@ public abstract class Component {
 		isAngry = false;
 	}
 	
+	//WARNING - This class overridden in Valve.java to include percent open
 	public boolean isAngry() {
-		return isAngry;
+		//Calculating anger as we go is a pain, and I can't get it to work... so let's just calculate it after trueFlowVolume is set.
+		if(maxVolume <= 0)
+			return false;			//If we don't have max set, then we can't be angry...
+		return getTrueFlowVolume() > getMaxVolume();
+//		return isAngry;
 	}
 	
-	public List<Complaint> getComplaintLog() {
+	public HashMap<Pump, Double> getComplaintLog() {
 		return complaintLog;
 	}
 	
@@ -81,27 +87,19 @@ public abstract class Component {
 	}
 
 	public double getTrueFlowPercent() {
-		double flowSum = 0;
-		for (Double d : trueFlowPercent) {
-			flowSum += d;
-		}
-		return flowSum;
+		return trueFlowPercent.values().stream().reduce(0.0, Double::sum);
 	}
 
-	public void setTrueFlowPercent(double trueFlow) {
-		trueFlowPercent.add(trueFlow);
+	public void setTrueFlowPercent(Pump p, double trueFlow) {
+		trueFlowPercent.put(p, trueFlow);
 	}
 
 	public double getTrueFlowVolume() {
-		double volumeSum = 0;
-		for (Double d : trueFlowVolume) {
-			volumeSum += d;
-		}
-		return volumeSum;
+		return trueFlowVolume.values().stream().reduce(0.0, Double::sum);
 	}
 
-	public void setTrueFlowVolume(double volume) {
-		trueFlowVolume.add(volume);
+	public void setTrueFlowVolume(Pump p, double volume) {
+		trueFlowVolume.put(p, volume);
 	}
 
 	public void setAngry(boolean isAngry) {
@@ -135,7 +133,7 @@ public abstract class Component {
 	
 	@Override
 	public String toString() {
-		return name + ": " + getTrueFlowPercent() + ", " + trueFlowPercent + ", " + getTrueFlowVolume() + ", " + trueFlowVolume;
+		return name + ": " + getTrueFlowPercent() + ", " + trueFlowPercent.values() + ", " + getTrueFlowVolume() + ", " + trueFlowVolume.values();
 	}
 
 }

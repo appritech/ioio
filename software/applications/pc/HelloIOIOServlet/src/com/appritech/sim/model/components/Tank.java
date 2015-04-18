@@ -80,11 +80,11 @@ public class Tank extends Component {
 	}
 
 	@Override
-	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean isTheRealDeal) {
+	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean isTheRealDeal, Component input) {
 		if (capacity <= currentVolume) {
 			if (isTheRealDeal) {
-				setTrueFlowPercent(0);
-				setTrueFlowVolume(0);
+				setTrueFlowPercent(originPump, 0);
+				setTrueFlowVolume(originPump, 0);
 			}
 			return 0;
 		}
@@ -93,25 +93,25 @@ public class Tank extends Component {
 			double remainingSpace = capacity - currentVolume;
 			double percentAvailable = remainingSpace / volumePerSecond;
 			if (isTheRealDeal) {
-				setTrueFlowPercent(percentAvailable);
-				setTrueFlowVolume(percentAvailable * volumePerSecond);	
+				setTrueFlowPercent(originPump, percentAvailable);
+				setTrueFlowVolume(originPump, percentAvailable * volumePerSecond);	
 			}
 			return percentAvailable;
 		}
 		
 		if (isTheRealDeal) {
-			setTrueFlowPercent(oldMin);
-			setTrueFlowVolume(oldMin * volumePerSecond);
+			setTrueFlowPercent(originPump, oldMin);
+			setTrueFlowVolume(originPump, oldMin * volumePerSecond);
 		}
 		return oldMin;
 	}
 
 	@Override
-	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean isTheRealDeal) {
+	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean isTheRealDeal, Component output) {
 		if (currentVolume <= 0) {
 			if (isTheRealDeal) {
-				setTrueFlowPercent(0);
-				setTrueFlowVolume(0);
+				setTrueFlowPercent(originPump, 0);
+				setTrueFlowVolume(originPump, 0);
 			}
 			return 0;
 		}
@@ -122,15 +122,15 @@ public class Tank extends Component {
 			double remainingVolume = currentVolume;
 			double percentAvailable = remainingVolume / volumePerSecond;
 			if (isTheRealDeal) {
-				setTrueFlowPercent(percentAvailable * -1);
-				setTrueFlowVolume(percentAvailable * volumePerSecond * -1);
+				setTrueFlowPercent(originPump, percentAvailable * -1);
+				setTrueFlowVolume(originPump, percentAvailable * volumePerSecond * -1);
 			}
 			return percentAvailable;
 		}
 		
 		if (isTheRealDeal) {
-			setTrueFlowPercent(oldMin * -1);
-			setTrueFlowVolume(oldMin * volumePerSecond * -1);
+			setTrueFlowPercent(originPump, oldMin * -1);
+			setTrueFlowVolume(originPump, oldMin * volumePerSecond * -1);
 		}
 		return oldMin;
 	}

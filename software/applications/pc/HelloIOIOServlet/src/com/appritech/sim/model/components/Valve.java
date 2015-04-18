@@ -38,6 +38,11 @@ public class Valve extends Component {
 	}
 	
 	@Override
+	public double getMaxVolume() {
+		return super.getMaxVolume() * openPercentage;
+	}
+	
+	@Override
 	public void connectSelf(HashMap<String, Component> components) {
 		sink = components.get(sinkName);
 		sink.setSource(this);
@@ -76,29 +81,31 @@ public class Valve extends Component {
 	}
 
 	@Override
-	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
+	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component input) {
+		if("v11".equals(this.getName()))
+			System.out.println("asdf");
 		double currentMin = openPercentage < oldMin ? Double.valueOf(openPercentage) : Double.valueOf(oldMin);
-		if (mc.getOverrideMap().containsKey(this) && thisIsTheRealDeal == false) {
+		if (mc.getOverrideMap().containsKey(this) && !thisIsTheRealDeal) {
 			System.out.println(mc.getOverrideMap().get(this));
 			currentMin = currentMin * mc.getOverrideMap().get(this);
 		}
 		
 		double newMin = 0;
 		if (hasMaxVolume) {
-			newMin = sink.getPossibleFlowDown(originPump, currentMin, volumePerSecond, mc, false);
+			newMin = sink.getPossibleFlowDown(originPump, currentMin, volumePerSecond, mc, false, this);
 			
 			if (newMin * volumePerSecond > getMaxVolume() && thisIsTheRealDeal) {
 				double ratio = getMaxVolume() / (newMin * volumePerSecond);
-				newMin = sink.getPossibleFlowDown(originPump, currentMin * ratio, volumePerSecond, mc, thisIsTheRealDeal);
+				newMin = sink.getPossibleFlowDown(originPump, currentMin * ratio, volumePerSecond, mc, thisIsTheRealDeal, this);
 			}
 		} else {
-			newMin = sink.getPossibleFlowDown(originPump, currentMin, volumePerSecond, mc, thisIsTheRealDeal);
+			newMin = sink.getPossibleFlowDown(originPump, currentMin, volumePerSecond, mc, thisIsTheRealDeal, this);
 		}
-		
+
+		addToComplaintLog(originPump, newMin * volumePerSecond, mc);
 		if (thisIsTheRealDeal) {
-			addToComplaintLog(originPump, newMin * volumePerSecond, mc);
-			setTrueFlowPercent(newMin);
-			setTrueFlowVolume(newMin * volumePerSecond);
+			setTrueFlowPercent(originPump, newMin);
+			setTrueFlowVolume(originPump, newMin * volumePerSecond);
 		}
 		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
 		
@@ -107,29 +114,29 @@ public class Valve extends Component {
 	}
 
 	@Override
-	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
+	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component output) {
 		double currentMin = openPercentage < oldMin ? Double.valueOf(openPercentage) : Double.valueOf(oldMin);
-		if (mc.getOverrideMap().containsKey(this) && thisIsTheRealDeal == false) {
+		if (mc.getOverrideMap().containsKey(this)) {
 			System.out.println(mc.getOverrideMap().get(this));
 			currentMin = currentMin * mc.getOverrideMap().get(this);
 		}
 		
 		double newMin = 0;
 		if (hasMaxVolume) {
-			newMin = source.getPossibleFlowUp(originPump, currentMin, volumePerSecond, mc, false);
+			newMin = source.getPossibleFlowUp(originPump, currentMin, volumePerSecond, mc, false, this);
 			
 			if (newMin * volumePerSecond > getMaxVolume() && thisIsTheRealDeal) {
 				double ratio = getMaxVolume() / (newMin * volumePerSecond);
-				newMin = source.getPossibleFlowUp(originPump, currentMin * ratio, volumePerSecond, mc, thisIsTheRealDeal);
+				newMin = source.getPossibleFlowUp(originPump, currentMin * ratio, volumePerSecond, mc, thisIsTheRealDeal, this);
 			}
 		} else {
-			newMin = source.getPossibleFlowUp(originPump, currentMin, volumePerSecond, mc, thisIsTheRealDeal);
+			newMin = source.getPossibleFlowUp(originPump, currentMin, volumePerSecond, mc, thisIsTheRealDeal, this);
 		}
-		
+
+		addToComplaintLog(originPump, newMin * volumePerSecond, mc);
 		if (thisIsTheRealDeal) {
-			addToComplaintLog(originPump, newMin * volumePerSecond, mc);
-			setTrueFlowPercent(newMin);
-			setTrueFlowVolume(newMin * volumePerSecond);
+			setTrueFlowPercent(originPump, newMin);
+			setTrueFlowVolume(originPump, newMin * volumePerSecond);
 		}
 		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
 		
