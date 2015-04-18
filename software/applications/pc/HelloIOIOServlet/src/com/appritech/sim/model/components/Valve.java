@@ -110,7 +110,7 @@ public class Valve extends Component {
 			setTrueFlowPercent(originPump, newMin);
 			setTrueFlowVolume(originPump, newMin * volumePerSecond);
 		}
-		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
+//		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
 		
 		
 		return newMin;
@@ -141,7 +141,7 @@ public class Valve extends Component {
 			setTrueFlowPercent(originPump, newMin);
 			setTrueFlowVolume(originPump, newMin * volumePerSecond);
 		}
-		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
+//		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
 		
 		
 		return newMin;

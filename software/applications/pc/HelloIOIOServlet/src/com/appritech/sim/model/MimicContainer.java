@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.appritech.sim.model.components.Component;
 import com.appritech.sim.model.components.Pump;
-import com.appritech.sim.model.components.helper.Complaint;
 
 public class MimicContainer {
 
@@ -120,8 +118,8 @@ public class MimicContainer {
 		boolean isAngry = true;			//Assume the worst of the world (i.e. make sure we get into the while loop at least once)
 		List<Double> minimumFlows = Arrays.asList(1.0, 1.0);
 		while(isAngry) {
-			double[] downResult = computeDown(Arrays.asList(p1, p2), minimumFlows);
-			double[] upResult = computeUp(Arrays.asList(p1, p2), minimumFlows);
+			double[] downResult = computeDown(new ArrayList<Pump>(pumps.values()), minimumFlows);
+			double[] upResult = computeUp(new ArrayList<Pump>(pumps.values()), minimumFlows);
 			
 			Component grumpyHead = getNextAngryComponent();
 			if (grumpyHead != null) {
@@ -142,8 +140,8 @@ public class MimicContainer {
 		
 		
 		prepForTryAgain();
-		computeDown(Arrays.asList(p1, p2), minimumFlows);
-		computeUp(Arrays.asList(p1, p2), minimumFlows);
+		computeDown(new ArrayList<Pump>(pumps.values()), minimumFlows);
+		computeUp(new ArrayList<Pump>(pumps.values()), minimumFlows);
 		
 		System.out.println("Round two: " + this);
 		
