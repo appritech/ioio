@@ -76,21 +76,21 @@ public class Pump extends Component {
 	}
 
 	@Override
-	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
-		double flowDown = sink.getPossibleFlowDown(originPump, oldMinPercent, volumePerSecond, mc, thisIsTheRealDeal);
+	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component input) {
+		double flowDown = sink.getPossibleFlowDown(originPump, oldMinPercent, volumePerSecond, mc, thisIsTheRealDeal, this);
 		if (thisIsTheRealDeal) {
-			setTrueFlowPercent(flowDown);
-			setTrueFlowVolume(flowDown * volumePerSecond);
+			setTrueFlowPercent(originPump, flowDown);
+			setTrueFlowVolume(originPump, flowDown * volumePerSecond);
 		}
 		return flowDown;
 	}
 
 	@Override
-	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal) {
-		double flowUp = source.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond, mc, thisIsTheRealDeal);
+	public double getPossibleFlowUp(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component output) {
+		double flowUp = source.getPossibleFlowUp(originPump, oldMinPercent, volumePerSecond, mc, thisIsTheRealDeal, this);
 		if (thisIsTheRealDeal) {
-			setTrueFlowPercent(flowUp);
-			setTrueFlowVolume(flowUp * volumePerSecond);
+			setTrueFlowPercent(originPump, flowUp);
+			setTrueFlowVolume(originPump, flowUp * volumePerSecond);
 		}
 		return flowUp;
 	}

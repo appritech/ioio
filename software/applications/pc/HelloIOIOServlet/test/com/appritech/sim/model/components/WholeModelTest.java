@@ -77,19 +77,19 @@ public class WholeModelTest {
 		// Then, send that min up and down both of them. 
 		// That should totally be the right answer. 
 		
-		double p1Down = p1.getPossibleFlowDown(p1, 1.0, p1.getMcrRating(), mc, false);
-		double p1Up = p1.getPossibleFlowUp(p1, 1.0, p1.getMcrRating(), mc, false);
+		double p1Down = p1.getPossibleFlowDown(p1, 1.0, p1.getMcrRating(), mc, false, null);
+		double p1Up = p1.getPossibleFlowUp(p1, 1.0, p1.getMcrRating(), mc, false, null);
 		
 		double minP1 = Math.min(p1Down, p1Up);
-		p1.getPossibleFlowDown(p1, minP1, p1.getMcrRating(), mc, true);
-		p1.getPossibleFlowUp(p1, minP1, p1.getMcrRating(), mc, true);
+		p1.getPossibleFlowDown(p1, minP1, p1.getMcrRating(), mc, true, null);
+		p1.getPossibleFlowUp(p1, minP1, p1.getMcrRating(), mc, true, null);
 		
-		double p2Down = p2.getPossibleFlowDown(p2, 1.0, p2.getMcrRating(), mc, false);
-		double p2Up = p2.getPossibleFlowUp(p2, 1.0, p2.getMcrRating(), mc, false);
+		double p2Down = p2.getPossibleFlowDown(p2, 1.0, p2.getMcrRating(), mc, false, null);
+		double p2Up = p2.getPossibleFlowUp(p2, 1.0, p2.getMcrRating(), mc, false, null);
 		double minP2 = Math.min(p2Down, p2Up);
 		
-		p2.getPossibleFlowDown(p2, minP2, p2.getMcrRating(), mc, true);
-		p2.getPossibleFlowUp(p2, minP2, p2.getMcrRating(), mc, true);
+		p2.getPossibleFlowDown(p2, minP2, p2.getMcrRating(), mc, true, null);
+		p2.getPossibleFlowUp(p2, minP2, p2.getMcrRating(), mc, true, null);
 		
 		System.out.println("p1 down = " + p1Down);
 		System.out.println("p1 up = " + p1Up);

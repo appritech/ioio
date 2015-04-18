@@ -20,7 +20,7 @@ public class SplitterTest {
 		SplitValve onlyValve = new SplitValve(steve, 0.5, 0.75);
 		Splitter split = new Splitter("split", null, Arrays.asList(onlyValve));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true, null);
 		assertEquals(possibleFlow, 0.75, 0.00005);
 	}
 	
@@ -38,7 +38,7 @@ public class SplitterTest {
 		
 		Splitter split = new Splitter("split", null, Arrays.asList(splitSteve, splitBruce));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true, null);
 		assertEquals(possibleFlow, 1.0, 0.00005);
 		
 		assertEquals(steve.getTrueFlowPercent(), 0.4, 0.00005);
@@ -60,7 +60,7 @@ public class SplitterTest {
 		
 		Splitter split = new Splitter("split", null, Arrays.asList(splitSteve, splitBruce));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true, null);
 		assertEquals(possibleFlow, 0.9, 0.00005);
 		
 		assertEquals(steve.getTrueFlowPercent(), 0.4, 0.00005);
@@ -86,7 +86,7 @@ public class SplitterTest {
 		
 		Splitter split = new Splitter("split", null, Arrays.asList(splitSteve, splitBruce, splitArcher));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true, null);
 		assertEquals(possibleFlow, 1.0, 0.00005);
 		
 		assertEquals(steve.getTrueFlowPercent(), .3, 0.00005);
@@ -112,7 +112,7 @@ public class SplitterTest {
 		
 		Splitter split = new Splitter("split", null, Arrays.asList(splitSteve, splitBruce, splitArcher));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true, null);
 		assertEquals(possibleFlow, .875, 0.00005);
 		
 		assertEquals(steve.getTrueFlowPercent(), .15, 0.00005);
@@ -138,7 +138,7 @@ public class SplitterTest {
 		
 		Splitter split = new Splitter("split", null, Arrays.asList(splitSteve, splitBruce, splitArcher));
 		
-		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true);
+		double possibleFlow = split.getPossibleFlowDown(null, 1.0, Double.MAX_VALUE, new MimicContainer(), true, null);
 		assertEquals(possibleFlow, 1, 0.00005);
 		
 		assertEquals(steve.getTrueFlowPercent(), .15/1.35, 0.00005);
