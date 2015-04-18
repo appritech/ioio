@@ -2,11 +2,11 @@ package com.appritech.sim.model.components;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.appritech.sim.model.MimicContainer;
 import com.appritech.sim.model.DrawingLine;
+import com.appritech.sim.model.MimicContainer;
 import com.appritech.sim.model.components.helper.SplitValve;
 
 public class Splitter extends Component {
@@ -82,7 +82,11 @@ public class Splitter extends Component {
 		this.input = input;
 	}
 	public List<Valve> getOutputs() {
-		return outputs.stream().map(v -> v.getValve()).collect(Collectors.toList());
+		List<Valve> out = new LinkedList<Valve>();
+		for (SplitValve v : outputs) {
+			out.add(v.getValve());
+		}
+		return out;
 	}
 	public void setOutputs(List<SplitValve> outputs) {
 		for (SplitValve v : outputs) {
@@ -143,16 +147,21 @@ public class Splitter extends Component {
 		}
 		
 		double theRealFlow = Math.min(flowToReturn, oldMinPercent);
-		addToComplaintLog(originPump, theRealFlow * volumePerSecond, mc);
 		if (thisIsTheRealDeal) {
-			setTrueFlowPercent(originPump, theRealFlow);
-			setTrueFlowVolume(originPump, theRealFlow * volumePerSecond);
 			
+			
+			double sum = 0;
 			for (int i = 0; i < outputs.size(); i++) {
 				Valve v = outputs.get(i).getValve();
 				//Note: We're doign this so we can set these values. 
-				v.getPossibleFlowDown(originPump, trueFlows.get(i), volumePerSecond, mc, true, this);
+				double temp = v.getPossibleFlowDown(originPump, trueFlows.get(i), volumePerSecond, mc, true, this);
+				sum += temp;
 			}
+			
+			theRealFlow = Math.min(sum, oldMinPercent);
+			addToComplaintLog(originPump, theRealFlow * volumePerSecond, mc);
+			setTrueFlowPercent(originPump, theRealFlow);
+			setTrueFlowVolume(originPump, theRealFlow * volumePerSecond);
 		}
 		return theRealFlow;
 	}

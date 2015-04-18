@@ -6,17 +6,14 @@ import java.util.List;
 
 import com.appritech.sim.model.DrawingLine;
 import com.appritech.sim.model.MimicContainer;
+import com.appritech.sim.model.components.helper.AngerStory;
 
 public class Valve extends Component {
 	
 	private double openPercentage = 1.0;
 	private double maxFlow = Double.MAX_VALUE;
-	
 	private Component source;
 	private Component sink;
-	
-	private HashMap<Pump, HashMap<Component, Double>> trueFlowPercentagesByPumpAndInput = new HashMap<Pump, HashMap<Component, Double>>();
-	
 	private String sinkName;
 	
 	public Valve(String name) {
@@ -89,8 +86,11 @@ public class Valve extends Component {
 		
 		double currentMin = openPercentage < oldMin ? Double.valueOf(openPercentage) : Double.valueOf(oldMin);
 		if (mc.getOverrideMap().containsKey(this) && !thisIsTheRealDeal) {
-			System.out.println(mc.getOverrideMap().get(this));
-			currentMin = currentMin * mc.getOverrideMap().get(this);
+			AngerStory as = mc.getOverrideMap().get(this);
+			Double ratio = as.getRatio(originPump, volumePerSecond);
+			ratio = ratio != null ? ratio : 1.0;
+			System.out.println(ratio);
+			currentMin = currentMin * ratio;
 		}
 		
 		double newMin = 0;
@@ -110,7 +110,7 @@ public class Valve extends Component {
 			setTrueFlowPercent(originPump, newMin);
 			setTrueFlowVolume(originPump, newMin * volumePerSecond);
 		}
-		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
+//		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
 		
 		
 		return newMin;
@@ -119,9 +119,12 @@ public class Valve extends Component {
 	@Override
 	public double getPossibleFlowUp(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component output) {
 		double currentMin = openPercentage < oldMin ? Double.valueOf(openPercentage) : Double.valueOf(oldMin);
-		if (mc.getOverrideMap().containsKey(this)) {
-			System.out.println(mc.getOverrideMap().get(this));
-			currentMin = currentMin * mc.getOverrideMap().get(this);
+		if (mc.getOverrideMap().containsKey(this) && !thisIsTheRealDeal) {
+			AngerStory as = mc.getOverrideMap().get(this);
+			Double ratio = as.getRatio(originPump, volumePerSecond);
+			ratio = ratio != null ? ratio : 1.0;
+			System.out.println(ratio);
+			currentMin = currentMin * ratio;
 		}
 		
 		double newMin = 0;
@@ -141,7 +144,7 @@ public class Valve extends Component {
 			setTrueFlowPercent(originPump, newMin);
 			setTrueFlowVolume(originPump, newMin * volumePerSecond);
 		}
-		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
+//		System.out.println("Old Flow in: " + oldMin + ", " + "Override: " + mc.getOverrideMap().get(this) + ", new flow: " + newMin + "\r\n");
 		
 		
 		return newMin;
