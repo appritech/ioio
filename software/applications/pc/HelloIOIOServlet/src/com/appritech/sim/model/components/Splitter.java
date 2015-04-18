@@ -147,16 +147,21 @@ public class Splitter extends Component {
 		}
 		
 		double theRealFlow = Math.min(flowToReturn, oldMinPercent);
-		addToComplaintLog(originPump, theRealFlow * volumePerSecond, mc);
 		if (thisIsTheRealDeal) {
-			setTrueFlowPercent(originPump, theRealFlow);
-			setTrueFlowVolume(originPump, theRealFlow * volumePerSecond);
 			
+			
+			double sum = 0;
 			for (int i = 0; i < outputs.size(); i++) {
 				Valve v = outputs.get(i).getValve();
 				//Note: We're doign this so we can set these values. 
-				v.getPossibleFlowDown(originPump, trueFlows.get(i), volumePerSecond, mc, true, this);
+				double temp = v.getPossibleFlowDown(originPump, trueFlows.get(i), volumePerSecond, mc, true, this);
+				sum += temp;
 			}
+			
+			theRealFlow = Math.min(sum, oldMinPercent);
+			addToComplaintLog(originPump, theRealFlow * volumePerSecond, mc);
+			setTrueFlowPercent(originPump, theRealFlow);
+			setTrueFlowVolume(originPump, theRealFlow * volumePerSecond);
 		}
 		return theRealFlow;
 	}

@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.appritech.sim.model.DrawingLine;
 import com.appritech.sim.model.MimicContainer;
+import com.appritech.sim.model.components.helper.AngerStory;
 
 public class Combiner extends Component {
 	
@@ -70,17 +71,22 @@ public class Combiner extends Component {
 	}
 	
 	public double getInputFlowVolumeSum() {
-		double sum = inputs.stream().map(Valve::getTrueFlowVolume).reduce(0.0, Double::sum);
+		double sum = 0;
+		for (Valve v: inputs) {
+			sum += v.getTrueFlowVolume();
+		}
 		return sum;
+//		double sum = inputs.stream().map(Valve::getTrueFlowVolume).reduce(0.0, Double::sum);
+//		return sum;
 	}
 	
-//	@Override
-//	public boolean isAngry() {
+	@Override
+	public boolean isAngry() {
 //		double sum = inputs.stream().map(Valve::getTrueFlowVolume).reduce(0.0, Double::sum);
 //		if(sum > getTrueFlowVolume())
 //			System.out.println(this);
-//		return sum > getTrueFlowVolume();
-//	}
+		return getInputFlowVolumeSum() > getTrueFlowVolume();
+	}
 	
 	public Collection<Valve> getInputs() {
 		return inputs;
@@ -107,8 +113,11 @@ public class Combiner extends Component {
 		
 		double angerModifier = 1.0;
 		if (mc.getOverrideMap().containsKey(this) && thisIsTheRealDeal) {
-			System.out.println(mc.getOverrideMap().get(this));
-			angerModifier = angerModifier * mc.getOverrideMap().get(this);
+			AngerStory as = mc.getOverrideMap().get(this);
+			Double ratio = as.getRatio(originPump, volumePerSecond);
+			ratio = ratio != null ? ratio : 1.0;
+			System.out.println(ratio);
+			angerModifier = angerModifier * ratio;
 		}
 		
 		double pushThrough = output.getPossibleFlowDown(originPump, oldMinPercent, volumePerSecond, mc, false, this);
@@ -126,9 +135,9 @@ public class Combiner extends Component {
 			//This is the dumbest, most lame thing (since we called this above), but we need to push this cumulative number down the tree again so that downstream can set their 'real deal'
 			double realAnswer = output.getPossibleFlowDown(originPump, cumulativePercent, volumePerSecond, mc, thisIsTheRealDeal, this);
 			realAnswer = Math.min(realAnswer, pushThrough);
-			realAnswer = realAnswer * angerModifier;
 			setTrueFlowPercent(originPump, realAnswer);
 			setTrueFlowVolume(originPump, realAnswer * volumePerSecond);
+			realAnswer = realAnswer * angerModifier;
 			return realAnswer;
 		}
 		return pushThrough;
