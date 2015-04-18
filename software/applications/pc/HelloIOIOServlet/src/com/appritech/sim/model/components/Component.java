@@ -14,6 +14,7 @@ public abstract class Component {
 	private HashMap<Pump, Double> complaintLog = new HashMap<Pump, Double>();
 	private double currentAnger = 0;
 	private boolean isAngry = false;
+	private int numTimesAngerResolved = 0;
 	private String name;
 	private HashMap<Pump, Double> trueFlowPercent = new HashMap<Pump, Double>();
 	private HashMap<Pump, Double> trueFlowVolume = new HashMap<Pump, Double>();
@@ -104,6 +105,14 @@ public abstract class Component {
 
 	public void setAngry(boolean isAngry) {
 		this.isAngry = isAngry;
+	}
+
+	public int getNumTimesAngerResolved() {
+		return numTimesAngerResolved;
+	}
+
+	public void setNumTimesAngerResolved(int numTimesAngerResolved) {
+		this.numTimesAngerResolved = numTimesAngerResolved;
 	}
 
 	public float getX() {

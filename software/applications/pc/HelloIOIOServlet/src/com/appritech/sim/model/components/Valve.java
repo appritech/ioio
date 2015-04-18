@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.appritech.sim.model.DrawingLine;
-
 import com.appritech.sim.model.MimicContainer;
 
 public class Valve extends Component {
@@ -15,6 +14,8 @@ public class Valve extends Component {
 	
 	private Component source;
 	private Component sink;
+	
+	private HashMap<Pump, HashMap<Component, Double>> trueFlowPercentagesByPumpAndInput = new HashMap<Pump, HashMap<Component, Double>>();
 	
 	private String sinkName;
 	
@@ -82,6 +83,10 @@ public class Valve extends Component {
 
 	@Override
 	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component input) {
+		
+		if("v12".equals(this.getName()) && thisIsTheRealDeal)
+			System.out.println("asdf");
+		
 		double currentMin = openPercentage < oldMin ? Double.valueOf(openPercentage) : Double.valueOf(oldMin);
 		if (mc.getOverrideMap().containsKey(this) && !thisIsTheRealDeal) {
 			System.out.println(mc.getOverrideMap().get(this));

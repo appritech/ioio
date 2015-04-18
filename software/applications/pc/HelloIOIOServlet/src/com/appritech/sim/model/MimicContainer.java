@@ -49,8 +49,11 @@ public class MimicContainer {
 		
 		if (sum > c.getMaxVolume()) {
 			double ratio = c.getMaxVolume() / sum;
+			if(overrideMap.containsKey(c))
+				ratio *= overrideMap.get(c);
 			overrideMap.put(c, ratio);
 		}
+		c.setNumTimesAngerResolved(c.getNumTimesAngerResolved() + 1);
 	}
 	
 	public Map<Component, Double> getOverrideMap() {
@@ -73,15 +76,22 @@ public class MimicContainer {
 		return resultList;
 	}
 
-	private Component getFirstAngryComponent() {
-		Component firstAngryComponent = null;
+	/** Find the component with the lowest number of times of being resolved */
+	private Component getNextAngryComponent() {
+		Component nextAngryComponent = null;
 		for(Component c : components.values()) {
 			if(c.isAngry()) {
-				firstAngryComponent = c;
-				break;
+				if(nextAngryComponent == null) {
+					//This is the first one, so it is the lowest number
+					nextAngryComponent = c;
+				}
+				else if(c.getNumTimesAngerResolved() < nextAngryComponent.getNumTimesAngerResolved()) {
+					//If this has a lower number, then use it instead.
+					nextAngryComponent = c;
+				}
 			}
 		}
-		return firstAngryComponent;
+		return nextAngryComponent;
 	}
 	
 	private double[] computeUp(List<Pump> pumps, List<Double> flows) {
@@ -94,15 +104,18 @@ public class MimicContainer {
 		return resultList;
 	}
 	
-	private void resetOverrideMap() {
+	private void resetOverrideMapAndOtherStuff() {
 		overrideMap = new HashMap<Component, Double>();
+		for(Component c : components.values()) {
+			c.setNumTimesAngerResolved(0);
+		}
 	}
 	
 	public void solveMimic() {
 		Pump p1 = pumps.get("p1");
 		Pump p2 = pumps.get("p2");
 		
-		resetOverrideMap();				//Reset anything since last iteration
+		resetOverrideMapAndOtherStuff();				//Reset anything since last iteration
 		
 		boolean isAngry = true;			//Assume the worst of the world (i.e. make sure we get into the while loop at least once)
 		List<Double> minimumFlows = Arrays.asList(1.0, 1.0);
@@ -110,7 +123,7 @@ public class MimicContainer {
 			double[] downResult = computeDown(Arrays.asList(p1, p2), minimumFlows);
 			double[] upResult = computeUp(Arrays.asList(p1, p2), minimumFlows);
 			
-			Component grumpyHead = getFirstAngryComponent();
+			Component grumpyHead = getNextAngryComponent();
 			if (grumpyHead != null) {
 				isAngry = true;
 				resolveAnger(grumpyHead);

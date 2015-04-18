@@ -135,7 +135,8 @@ public class Splitter extends Component {
 				else {
 					trueFlow = oldMinPercent * (maxFlow[i] / sumOfMaxFlow);
 				}
-				trueFlow = Math.min(trueFlow, v.getMaxWeight());
+				trueFlow = Math.min(trueFlow, v.getMaxWeight());			//Probably don't need this one, since the one right below is better.
+				trueFlow = Math.min(trueFlow, maxFlow[i]);
 				trueFlows.set(i, trueFlow);
 				flowToReturn += trueFlow;
 			}

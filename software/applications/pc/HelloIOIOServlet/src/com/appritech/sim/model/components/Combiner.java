@@ -89,6 +89,10 @@ public class Combiner extends Component {
 	
 	@Override
 	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component input) {
+		
+		if("c3".equals(this.getName()) && thisIsTheRealDeal)
+			System.out.println("asdf");
+		
 		double pushThrough = output.getPossibleFlowDown(originPump, oldMinPercent, volumePerSecond, mc, false, this);
 		addToComplaintLog(originPump, pushThrough * volumePerSecond, mc);
 		if (thisIsTheRealDeal) {
@@ -97,11 +101,14 @@ public class Combiner extends Component {
 			HashMap<Component, Double> trueFlowPercentagesForOriginPump = trueFlowPercentagesByPumpAndInput.get(originPump);
 			trueFlowPercentagesForOriginPump.put(input, pushThrough);
 			double cumulativePercent = trueFlowPercentagesForOriginPump.values().stream().reduce(0.0, Double::sum);			//Current sum
-			setTrueFlowPercent(originPump, cumulativePercent);
-			setTrueFlowVolume(originPump, cumulativePercent * volumePerSecond);
+			
 			
 			//This is the dumbest, most lame thing (since we called this above), but we need to push this cumulative number down the tree again so that downstream can set their 'real deal'
-			output.getPossibleFlowDown(originPump, cumulativePercent, volumePerSecond, mc, thisIsTheRealDeal, this);
+			double realAnswer = output.getPossibleFlowDown(originPump, cumulativePercent, volumePerSecond, mc, thisIsTheRealDeal, this);
+			realAnswer = Math.min(realAnswer, pushThrough);
+			setTrueFlowPercent(originPump, realAnswer);
+			setTrueFlowVolume(originPump, realAnswer * volumePerSecond);
+			return realAnswer;
 		}
 		return pushThrough;
 	}

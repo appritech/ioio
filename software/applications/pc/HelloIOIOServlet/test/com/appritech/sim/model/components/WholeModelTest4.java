@@ -56,7 +56,8 @@ public class WholeModelTest4 {
 		
 		//Valve v11 = (Valve) mc.getComponent("v11");
 		//v11.setOpenPercentage(0);
-		((Valve) mc.getComponent("v11")).setOpenPercentage(0.5);
+		((Valve) mc.getComponent("v11")).setOpenPercentage(0.25);
+		((Valve) mc.getComponent("v12")).setOpenPercentage(0.25);
 		
 		mc.connectComponents();
 		
