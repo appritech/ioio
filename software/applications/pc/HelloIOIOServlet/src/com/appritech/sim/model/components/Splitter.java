@@ -99,9 +99,6 @@ public class Splitter extends Component {
 		double flowToReturn = 0; 
 		ArrayList<Double> trueFlows = new ArrayList<Double>(outputs.size());
 		
-		if("s3".equals(this.getName()) && thisIsTheRealDeal && oldMinPercent == 1.0)
-			System.out.println("asdf");
-		
 		for (int i = 0; i < outputs.size(); i++) {
 			SplitValve temp = outputs.get(i);
 			double maxToSendDown = Math.min(temp.getMaxWeight(), oldMinPercent);

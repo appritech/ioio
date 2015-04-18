@@ -89,12 +89,8 @@ public class Combiner extends Component {
 	
 	@Override
 	public double getPossibleFlowDown(Pump originPump, double oldMinPercent, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component input) {
-		if("c3".equals(this.getName()))
-			System.out.println("asdf");
 		double pushThrough = output.getPossibleFlowDown(originPump, oldMinPercent, volumePerSecond, mc, false, this);
 		addToComplaintLog(originPump, pushThrough * volumePerSecond, mc);
-		if("c3".equals(this.getName()))
-			System.out.println("asdf");
 		if (thisIsTheRealDeal) {
 			if(!trueFlowPercentagesByPumpAndInput.containsKey(originPump))
 				trueFlowPercentagesByPumpAndInput.put(originPump, new HashMap<Component, Double>());

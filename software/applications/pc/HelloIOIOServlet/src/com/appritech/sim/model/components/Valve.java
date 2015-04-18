@@ -82,8 +82,6 @@ public class Valve extends Component {
 
 	@Override
 	public double getPossibleFlowDown(Pump originPump, double oldMin, double volumePerSecond, MimicContainer mc, boolean thisIsTheRealDeal, Component input) {
-		if("v11".equals(this.getName()))
-			System.out.println("asdf");
 		double currentMin = openPercentage < oldMin ? Double.valueOf(openPercentage) : Double.valueOf(oldMin);
 		if (mc.getOverrideMap().containsKey(this) && !thisIsTheRealDeal) {
 			System.out.println(mc.getOverrideMap().get(this));
