@@ -77,7 +77,8 @@ public class Splitter extends Component {
 			System.out.println("Splitter's input must be a valve");
 	}
 	public void setInput(Valve input) {
-		input.setSink(this);
+		if(input != null)			//This is for junit tests
+			input.setSink(this);
 		this.input = input;
 	}
 	public List<Valve> getOutputs() {
