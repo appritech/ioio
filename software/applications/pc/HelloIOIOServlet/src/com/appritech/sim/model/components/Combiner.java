@@ -69,6 +69,19 @@ public class Combiner extends Component {
 		this.output = output;
 	}
 	
+	public double getInputFlowVolumeSum() {
+		double sum = inputs.stream().map(Valve::getTrueFlowVolume).reduce(0.0, Double::sum);
+		return sum;
+	}
+	
+//	@Override
+//	public boolean isAngry() {
+//		double sum = inputs.stream().map(Valve::getTrueFlowVolume).reduce(0.0, Double::sum);
+//		if(sum > getTrueFlowVolume())
+//			System.out.println(this);
+//		return sum > getTrueFlowVolume();
+//	}
+	
 	public Collection<Valve> getInputs() {
 		return inputs;
 	}
@@ -92,6 +105,12 @@ public class Combiner extends Component {
 		if("c3".equals(this.getName()) && thisIsTheRealDeal)
 			System.out.println("asdf");
 		
+		double angerModifier = 1.0;
+		if (mc.getOverrideMap().containsKey(this) && thisIsTheRealDeal) {
+			System.out.println(mc.getOverrideMap().get(this));
+			angerModifier = angerModifier * mc.getOverrideMap().get(this);
+		}
+		
 		double pushThrough = output.getPossibleFlowDown(originPump, oldMinPercent, volumePerSecond, mc, false, this);
 		addToComplaintLog(originPump, pushThrough * volumePerSecond, mc);
 		if (thisIsTheRealDeal) {
@@ -107,6 +126,7 @@ public class Combiner extends Component {
 			//This is the dumbest, most lame thing (since we called this above), but we need to push this cumulative number down the tree again so that downstream can set their 'real deal'
 			double realAnswer = output.getPossibleFlowDown(originPump, cumulativePercent, volumePerSecond, mc, thisIsTheRealDeal, this);
 			realAnswer = Math.min(realAnswer, pushThrough);
+			realAnswer = realAnswer * angerModifier;
 			setTrueFlowPercent(originPump, realAnswer);
 			setTrueFlowVolume(originPump, realAnswer * volumePerSecond);
 			return realAnswer;
@@ -132,9 +152,10 @@ public class Combiner extends Component {
 		double ratio = 1;
 		//17-Apr-2015 - RW - I don't see any reason to have this ratio. If the sum of our sources can support more than 1, 
 		//                   then we should be happy about that, and not limit anything...
-//		if (totalPossibleFlow > 1) {
-//			ratio = 1 / totalPossibleFlow;
-//		}
+		//    Found use for the ratio... it needs to be passed up to the valve, but not used to effect trueFlow
+		if (totalPossibleFlow > 1) {
+			ratio = 1 / totalPossibleFlow;
+		}
 		
 		double trueFlow = Math.min(oldMinPercent, totalPossibleFlow);
 		addToComplaintLog(originPump, trueFlow * volumePerSecond, mc);
@@ -146,7 +167,6 @@ public class Combiner extends Component {
 				// The true flow and true pressure appropriately. 
 				v.getPossibleFlowUp(originPump, flowArray[i] * ratio, volumePerSecond, mc, true, this);
 			}
-			trueFlow = trueFlow * ratio;
 			setTrueFlowPercent(originPump, trueFlow);
 			setTrueFlowVolume(originPump, trueFlow * volumePerSecond);
 		}
