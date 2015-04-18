@@ -88,7 +88,12 @@ public abstract class Component {
 	}
 
 	public double getTrueFlowPercent() {
-		return trueFlowPercent.values().stream().reduce(0.0, Double::sum);
+		double sum = 0;
+		for (double d : trueFlowPercent.values()) {
+			sum += d;
+		}
+		return sum;
+//		return trueFlowPercent.values().stream().reduce(0.0, Double::sum);
 	}
 
 	public void setTrueFlowPercent(Pump p, double trueFlow) {
@@ -96,7 +101,12 @@ public abstract class Component {
 	}
 
 	public double getTrueFlowVolume() {
-		return trueFlowVolume.values().stream().reduce(0.0, Double::sum);
+		double sum = 0;
+		for (double d : trueFlowVolume.values()){
+			sum += d;
+		}
+		return sum;
+//		return trueFlowVolume.values().stream().reduce(0.0, Double::sum);
 	}
 
 	public void setTrueFlowVolume(Pump p, double volume) {

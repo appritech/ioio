@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.appritech.sim.model.DrawingLine;
-
 import com.appritech.sim.model.MimicContainer;
 
 public class Combiner extends Component {
@@ -100,8 +99,10 @@ public class Combiner extends Component {
 				trueFlowPercentagesByPumpAndInput.put(originPump, new HashMap<Component, Double>());
 			HashMap<Component, Double> trueFlowPercentagesForOriginPump = trueFlowPercentagesByPumpAndInput.get(originPump);
 			trueFlowPercentagesForOriginPump.put(input, pushThrough);
-			double cumulativePercent = trueFlowPercentagesForOriginPump.values().stream().reduce(0.0, Double::sum);			//Current sum
-			
+			double cumulativePercent = 0;
+			for (Double d : trueFlowPercentagesForOriginPump.values()) {
+				cumulativePercent += d;
+			}
 			
 			//This is the dumbest, most lame thing (since we called this above), but we need to push this cumulative number down the tree again so that downstream can set their 'real deal'
 			double realAnswer = output.getPossibleFlowDown(originPump, cumulativePercent, volumePerSecond, mc, thisIsTheRealDeal, this);

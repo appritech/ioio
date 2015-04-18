@@ -41,11 +41,11 @@ public class MimicContainer {
 	
 	private void resolveAnger(Component c) {
 		HashMap<Pump, Double> log = c.getComplaintLog();
-//		double sum = 0;
-//		for (Complaint complaint : log) {
-//			sum += complaint.getFlow();
-//		}
-		double sum = log.values().stream().reduce(0.0, Double::sum);
+		double sum = 0;
+		for (Double d : log.values()) {
+			sum += d;
+		}
+//		double sum = log.values().stream().reduce(0.0, Double::sum);
 		
 		if (sum > c.getMaxVolume()) {
 			double ratio = c.getMaxVolume() / sum;

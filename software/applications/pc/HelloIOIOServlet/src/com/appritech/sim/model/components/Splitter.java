@@ -2,11 +2,11 @@ package com.appritech.sim.model.components;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.appritech.sim.model.MimicContainer;
 import com.appritech.sim.model.DrawingLine;
+import com.appritech.sim.model.MimicContainer;
 import com.appritech.sim.model.components.helper.SplitValve;
 
 public class Splitter extends Component {
@@ -82,7 +82,11 @@ public class Splitter extends Component {
 		this.input = input;
 	}
 	public List<Valve> getOutputs() {
-		return outputs.stream().map(v -> v.getValve()).collect(Collectors.toList());
+		List<Valve> out = new LinkedList<Valve>();
+		for (SplitValve v : outputs) {
+			out.add(v.getValve());
+		}
+		return out;
 	}
 	public void setOutputs(List<SplitValve> outputs) {
 		for (SplitValve v : outputs) {
